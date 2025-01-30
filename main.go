@@ -14,6 +14,7 @@ func main() {
 	defer cancel()
 
 	serveMux := &http.ServeMux{}
+	serveMux.Handle("/", handleIndex())
 
 	server := &http.Server{
 		Addr:    "localhost:5050",
