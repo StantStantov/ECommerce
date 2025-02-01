@@ -1,16 +1,19 @@
 package views
 
-templ Category(name string) {
+templ Category(name string, products []string) {
 	@head()
 	<html>
 		<body>
 			@header()
-			@categoryBody(name)
+			@categoryBody(name, products)
 			@footer()
 		</body>
 	</html>
 }
 
-templ categoryBody(name string) {
+templ categoryBody(name string, products []string) {
 	<h2>{ name }</h2>
+	for _, item := range products {
+		<div>{ item }</div>
+	}
 }
