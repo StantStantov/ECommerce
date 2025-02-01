@@ -16,6 +16,7 @@ func main() {
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	serveMux.Handle("/", handleIndex())
+	serveMux.Handle("/category/{name}", handleCategory())
 
 	server := &http.Server{
 		Addr:    "localhost:5050",

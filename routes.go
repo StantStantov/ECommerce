@@ -14,3 +14,13 @@ func handleIndex() http.Handler {
 		},
 	)
 }
+
+func handleCategory() http.Handler {
+	renderer := views.Category
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			renderer(r.PathValue("name")).Render(r.Context(), w)
+		},
+	)
+}
