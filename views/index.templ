@@ -1,12 +1,14 @@
 package views
 
+import "strings"
+
 templ Index() {
 	@head()
 	<html>
 		<body>
 			@header()
 			@body()
-      @footer()
+			@footer()
 		</body>
 	</html>
 }
@@ -27,8 +29,23 @@ templ header() {
 }
 
 templ body() {
-	<div>
-		<p>Hello, World!</p>
+	<div class="main-body">
+		<div class="grid">
+			@categoryCard("Electronics")
+			@categoryCard("Laptops")
+			@categoryCard("Computers")
+			@categoryCard("Accessories")
+		</div>
+	</div>
+}
+
+templ categoryCard(name string) {
+	<div class="grid-card">
+		<a href={ templ.URL("/catalogue-" + strings.ToLower(name)) }>
+			<h2>
+				{ name }
+			</h2>
+		</a>
 	</div>
 }
 
