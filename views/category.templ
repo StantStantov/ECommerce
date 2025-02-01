@@ -1,0 +1,16 @@
+package views
+
+templ Category(name string) {
+	@head()
+	<html>
+		<body>
+			@header()
+			@categoryBody(name)
+			@footer()
+		</body>
+	</html>
+}
+
+templ categoryBody(name string) {
+	<h2>{ name }</h2>
+}

@@ -7,7 +7,7 @@ templ Index() {
 	<html>
 		<body>
 			@header()
-			@body()
+			@indexBody()
 			@footer()
 		</body>
 	</html>
@@ -28,7 +28,7 @@ templ header() {
 	</header>
 }
 
-templ body() {
+templ indexBody() {
 	<div class="main-body">
 		<div class="grid">
 			@categoryCard("Electronics")
@@ -41,7 +41,7 @@ templ body() {
 
 templ categoryCard(name string) {
 	<div class="grid-card">
-		<a href={ templ.URL("/catalogue-" + strings.ToLower(name)) }>
+		<a href={ templ.URL("/category/" + strings.ToLower(name)) }>
 			<h2>
 				{ name }
 			</h2>
