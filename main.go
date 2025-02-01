@@ -14,6 +14,7 @@ func main() {
 	defer cancel()
 
 	serveMux := &http.ServeMux{}
+	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	serveMux.Handle("/", handleIndex())
 
 	server := &http.Server{
