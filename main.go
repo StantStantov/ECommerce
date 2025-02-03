@@ -24,7 +24,7 @@ func main() {
 	productStore := newSQLProductStore(db)
 
 	serveMux := &http.ServeMux{}
-	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("views/static"))))
 	serveMux.Handle("/", handleIndex())
 	serveMux.Handle("/category/{name}", handleCategory(productStore))
 

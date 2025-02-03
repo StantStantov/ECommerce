@@ -2,7 +2,7 @@ package main
 
 import (
 	"Stant/ECommerce/domain"
-	"Stant/ECommerce/views"
+	views "Stant/ECommerce/views/templates"
 	"bytes"
 	"context"
 	"net/http"
