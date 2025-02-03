@@ -2,7 +2,7 @@ package main
 
 import (
 	"Stant/ECommerce/domain"
-	views "Stant/ECommerce/views/templates"
+	"Stant/ECommerce/views"
 	"log"
 	"net/http"
 )
