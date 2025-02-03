@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Stant/ECommerce/domain"
 	"Stant/ECommerce/views"
 	"bytes"
 	"context"
@@ -25,8 +26,8 @@ func TestIndexHandler(t *testing.T) {
 }
 
 func TestCategoryHandler(t *testing.T) {
-	products := []string{
-		"Huawei", "Lenovo", "ThinkPad",
+	products := []domain.Product{
+		domain.NewProduct("Huawei"), domain.NewProduct("Lenovo"), domain.NewProduct("ThinkPad"),
 	}
 	store := InMemoryStore{products}
 	mux := http.NewServeMux()

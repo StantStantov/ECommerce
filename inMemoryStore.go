@@ -1,13 +1,15 @@
 package main
 
+import "Stant/ECommerce/domain"
+
 type InMemoryStore struct {
-	db []string
+	db []domain.Product
 }
 
-func newInMemoryStore(db []string) *InMemoryStore {
+func newInMemoryStore(db []domain.Product) *InMemoryStore {
 	return &InMemoryStore{db: db}
 }
 
-func (st InMemoryStore) ReadAll() ([]string, error) {
+func (st InMemoryStore) ReadAll() ([]domain.Product, error) {
 	return st.db, nil
 }

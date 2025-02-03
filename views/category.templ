@@ -1,6 +1,8 @@
 package views
 
-templ Category(name string, products []string) {
+import "Stant/ECommerce/domain"
+
+templ Category(name string, products []domain.Product) {
 	@head()
 	<html>
 		<body>
@@ -11,9 +13,9 @@ templ Category(name string, products []string) {
 	</html>
 }
 
-templ categoryBody(name string, products []string) {
+templ categoryBody(name string, products []domain.Product) {
 	<h2>{ name }</h2>
 	for _, item := range products {
-		<div>{ item }</div>
+		<div>{ item.GetName() }</div>
 	}
 }
