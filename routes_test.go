@@ -20,7 +20,7 @@ func TestIndexHandler(t *testing.T) {
 	want := httptest.NewRecorder()
 	views.Index().Render(context.Background(), want)
 
-  checkResponseStatus(t, got.Code, http.StatusOK)
+	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
@@ -39,7 +39,7 @@ func TestCategoryHandler(t *testing.T) {
 	want := httptest.NewRecorder()
 	views.Category("Laptops", products).Render(context.Background(), want)
 
-  checkResponseStatus(t, got.Code, http.StatusOK)
+	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 

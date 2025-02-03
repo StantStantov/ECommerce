@@ -4,10 +4,6 @@ import (
 	"database/sql"
 )
 
-type ProductStore interface {
-	ReadAll() ([]string, error)
-}
-
 type SQLProductStore struct {
 	db *sql.DB
 }

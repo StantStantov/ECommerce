@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Stant/ECommerce/domain"
 	"Stant/ECommerce/views"
 	"log"
 	"net/http"
@@ -16,7 +17,7 @@ func handleIndex() http.Handler {
 	)
 }
 
-func handleCategory(store ProductStore) http.Handler {
+func handleCategory(store domain.ProductStore) http.Handler {
 	renderer := views.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
