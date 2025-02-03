@@ -2,7 +2,6 @@ package main
 
 import (
 	"Stant/ECommerce/views"
-	"database/sql"
 	"log"
 	"net/http"
 )
@@ -17,26 +16,15 @@ func handleIndex() http.Handler {
 	)
 }
 
-func handleCategory(db *sql.DB) http.Handler {
-	q := "SELECT name FROM laptops"
+func handleCategory(store ProductStore) http.Handler {
 	renderer := views.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			rows, err := db.Query(q)
+			products, err := store.ReadAll()
 			if err != nil {
-				log.Printf("Category: %s\n", err)
+				log.Printf("Category Handler: %s", err)
 				http.NotFound(w, r)
 				return
-			}
-			products := []string{}
-			for rows.Next() {
-				var product string
-				if err := rows.Scan(&product); err != nil {
-					log.Printf("Category: %s\n", err)
-					http.NotFound(w, r)
-					return
-				}
-				products = append(products, product)
 			}
 
 			w.WriteHeader(http.StatusOK)

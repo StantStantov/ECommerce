@@ -21,11 +21,12 @@ func main() {
 		log.Fatalf("Database: %s\n", err)
 	}
 	defer db.Close()
+	productStore := newSQLProductStore(db)
 
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	serveMux.Handle("/", handleIndex())
-	serveMux.Handle("/category/{name}", handleCategory(db))
+	serveMux.Handle("/category/{name}", handleCategory(productStore))
 
 	server := &http.Server{
 		Addr:    "localhost:5050",
