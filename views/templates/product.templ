@@ -1,0 +1,18 @@
+package views
+
+import "Stant/ECommerce/domain"
+
+templ Product(product domain.Product) {
+	@head()
+	<html>
+		<body>
+			@header()
+			@productBody(product)
+			@footer()
+		</body>
+	</html>
+}
+
+templ productBody(products domain.Product) {
+	<h2>{ products.GetName() }</h2>
+}
