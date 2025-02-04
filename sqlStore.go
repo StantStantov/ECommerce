@@ -14,7 +14,7 @@ func newSQLProductStore(db *sql.DB) *SQLProductStore {
 }
 
 func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
-	q := "SELECT name FROM laptops"
+	q := "SELECT * FROM laptops"
 	rows, err := st.db.Query(q)
 	if err != nil {
 		return nil, err
@@ -23,11 +23,12 @@ func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
 	products := []domain.Product{}
 	defer rows.Close()
 	for rows.Next() {
+		var id int
 		var name string
-		if err := rows.Scan(&name); err != nil {
+		if err := rows.Scan(&id, &name); err != nil {
 			return nil, err
 		}
-		products = append(products, domain.NewProduct(name))
+		products = append(products, domain.NewProduct(id, name))
 	}
 	return products, nil
 }

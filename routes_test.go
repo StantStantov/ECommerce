@@ -27,7 +27,9 @@ func TestIndexHandler(t *testing.T) {
 
 func TestCategoryHandler(t *testing.T) {
 	products := []domain.Product{
-		domain.NewProduct("Huawei"), domain.NewProduct("Lenovo"), domain.NewProduct("ThinkPad"),
+		domain.NewProduct(1, "Huawei"),
+		domain.NewProduct(2, "Lenovo"),
+		domain.NewProduct(3, "ThinkPad"),
 	}
 	store := InMemoryStore{products}
 	mux := http.NewServeMux()
