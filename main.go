@@ -23,6 +23,8 @@ func main() {
 	defer db.Close()
 	productStore := newSQLProductStore(db)
 
+	loggingMiddleware := LoggingMiddleware(*log.Default())
+
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("views/static"))))
 	serveMux.Handle("/", handleIndex())
@@ -31,7 +33,7 @@ func main() {
 
 	server := &http.Server{
 		Addr:    "localhost:5050",
-		Handler: serveMux,
+		Handler: loggingMiddleware(serveMux),
 	}
 
 	go func() {
