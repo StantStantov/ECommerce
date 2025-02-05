@@ -15,18 +15,21 @@ func newSQLProductStore(db *sql.DB) *SQLProductStore {
 }
 
 func (st SQLProductStore) Read(id int) (domain.Product, error) {
-	q := "SELECT * FROM laptops WHERE id = $1"
+	q := "SELECT * FROM products WHERE product_id = $1"
 	row := st.db.QueryRow(q, id)
 	var productID int
 	var name string
-	if err := row.Scan(&productID, &name); err != nil {
+	var sellerID int
+	var categoryID int
+	var price float32
+	if err := row.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
 		return domain.Product{}, fmt.Errorf("SQL Read: %v", err)
 	}
 	return domain.NewProduct(productID, name), nil
 }
 
 func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
-	q := "SELECT * FROM laptops"
+	q := "SELECT * FROM products"
 	rows, err := st.db.Query(q)
 	if err != nil {
 		return nil, err
@@ -35,12 +38,15 @@ func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
 	products := []domain.Product{}
 	defer rows.Close()
 	for rows.Next() {
-		var id int
+		var productID int
 		var name string
-		if err := rows.Scan(&id, &name); err != nil {
+		var sellerID int
+		var categoryID int
+		var price float32
+		if err := rows.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
 			return nil, err
 		}
-		products = append(products, domain.NewProduct(id, name))
+		products = append(products, domain.NewProduct(productID, name))
 	}
 	return products, nil
 }
