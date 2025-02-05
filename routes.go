@@ -5,6 +5,7 @@ import (
 	"Stant/ECommerce/views"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func handleIndex() http.Handler {
@@ -30,6 +31,30 @@ func handleCategory(store domain.ProductStore) http.Handler {
 
 			w.WriteHeader(http.StatusOK)
 			renderer(r.PathValue("name"), products).Render(r.Context(), w)
+		},
+	)
+}
+
+func handleProduct(store domain.ProductStore) http.Handler {
+	renderer := views.Product
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			id, err := strconv.Atoi(r.PathValue("id"))
+			if err != nil {
+				log.Printf("Product Handler: %s", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			product, err := store.Read(id)
+			if err != nil {
+				log.Printf("Product Handler: %s", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			renderer(product).Render(r.Context(), w)
 		},
 	)
 }

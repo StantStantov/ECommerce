@@ -40,7 +40,29 @@ func TestCategoryHandler(t *testing.T) {
 	mux.ServeHTTP(got, request)
 
 	want := httptest.NewRecorder()
-	views.Category("Laptops", products).Render(context.Background(), want)
+	test, _ := store.ReadAll()
+	views.Category("Laptops", test).Render(context.Background(), want)
+
+	checkResponseStatus(t, got.Code, http.StatusOK)
+	checkResponseBody(t, *got.Body, *want.Body)
+}
+
+func TestProductHandler(t *testing.T) {
+	products := []domain.Product{
+		domain.NewProduct(1, "Huawei"),
+		domain.NewProduct(2, "Lenovo"),
+		domain.NewProduct(3, "ThinkPad"),
+	}
+	store := InMemoryStore{products}
+	mux := http.NewServeMux()
+	mux.Handle("/product/{productID}", handleProduct(store))
+
+	request, _ := http.NewRequest(http.MethodGet, "/product/2", nil)
+	got := httptest.NewRecorder()
+	mux.ServeHTTP(got, request)
+
+	want := httptest.NewRecorder()
+	views.Product(products[2]).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
