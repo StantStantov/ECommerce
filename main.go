@@ -25,8 +25,9 @@ func main() {
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())
 
+	styles := http.FileServer(http.Dir("views/static"))
 	serveMux := &http.ServeMux{}
-	serveMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("views/static"))))
+	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
 	serveMux.Handle("/", handleIndex())
 	serveMux.Handle("/category/{name}", handleCategory(productStore))
 	serveMux.Handle("/product/{id}", handleProduct(productStore))
