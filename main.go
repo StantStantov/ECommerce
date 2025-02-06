@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("Database: %s\n", err)
 	}
 	defer db.Close()
-	productStore := newSQLProductStore(db)
+	productStore := stores.NewProductStore(db)
 	categoryStore := stores.NewCategoryStore(db)
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())

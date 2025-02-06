@@ -22,7 +22,7 @@ func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 	if err := row.Scan(&id, &name); err != nil {
 		return domain.Category{}, fmt.Errorf("SQL Read: %v", err)
 	}
-  return domain.NewCategory(id, name), nil
+	return domain.NewCategory(id, name), nil
 }
 
 func (st CategoryStore) ReadAll() ([]domain.Category, error) {

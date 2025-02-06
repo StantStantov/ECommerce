@@ -1,4 +1,4 @@
-package main
+package stores
 
 import (
 	"Stant/ECommerce/domain"
@@ -6,15 +6,15 @@ import (
 	"fmt"
 )
 
-type SQLProductStore struct {
+type ProductStore struct {
 	db *sql.DB
 }
 
-func newSQLProductStore(db *sql.DB) *SQLProductStore {
-	return &SQLProductStore{db: db}
+func NewProductStore(db *sql.DB) *ProductStore {
+	return &ProductStore{db: db}
 }
 
-func (st SQLProductStore) Read(id int) (domain.Product, error) {
+func (st ProductStore) Read(id int) (domain.Product, error) {
 	q := "SELECT * FROM products WHERE product_id = $1"
 	row := st.db.QueryRow(q, id)
 	var productID int
@@ -23,12 +23,12 @@ func (st SQLProductStore) Read(id int) (domain.Product, error) {
 	var categoryID int
 	var price float32
 	if err := row.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
-		return domain.Product{}, fmt.Errorf("SQL Read: %v", err)
+		return domain.Product{}, fmt.Errorf(" Read: %v", err)
 	}
 	return domain.NewProduct(productID, name, sellerID, categoryID, price), nil
 }
 
-func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
+func (st ProductStore) ReadAll() ([]domain.Product, error) {
 	q := "SELECT * FROM products"
 	rows, err := st.db.Query(q)
 	if err != nil {
@@ -51,7 +51,7 @@ func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-func (st SQLProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
+func (st ProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
 	q := "SELECT * FROM products WHERE category_id = $1"
 	rows, err := st.db.Query(q, categoryID)
 	if err != nil {
