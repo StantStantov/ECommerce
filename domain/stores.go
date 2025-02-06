@@ -7,6 +7,6 @@ type ProductStore interface {
 }
 
 type CategoryStore interface {
-	Read(id int) (string, error)
-	ReadAll() ([]string, error)
+	Read(id int) (Category, error)
+	ReadAll() ([]Category, error)
 }
