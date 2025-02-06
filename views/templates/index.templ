@@ -1,13 +1,16 @@
 package views
 
-import "strings"
+import (
+	"Stant/ECommerce/domain"
+	"strconv"
+)
 
-templ Index() {
+templ Index(categories []domain.Category) {
 	@head()
 	<html>
 		<body>
 			@header()
-			@indexBody()
+			@indexBody(categories)
 			@footer()
 		</body>
 	</html>
@@ -28,22 +31,21 @@ templ header() {
 	</header>
 }
 
-templ indexBody() {
+templ indexBody(categories []domain.Category) {
 	<div class="main-body">
 		<div class="grid">
-			@categoryCard("Electronics")
-			@categoryCard("Laptops")
-			@categoryCard("Computers")
-			@categoryCard("Accessories")
+			for _, category := range categories {
+				@categoryCard(category)
+			}
 		</div>
 	</div>
 }
 
-templ categoryCard(name string) {
+templ categoryCard(category domain.Category) {
 	<div class="grid-card">
-		<a href={ templ.URL("/category/" + strings.ToLower(name)) }>
+		<a href={ templ.URL("/category/" + strconv.Itoa(category.ID())) }>
 			<h2>
-				{ name }
+				{ category.Name() }
 			</h2>
 		</a>
 	</div>
