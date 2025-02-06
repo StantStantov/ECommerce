@@ -11,37 +11,50 @@ import (
 )
 
 func TestIndexHandler(t *testing.T) {
+	categories := []domain.Category{
+		domain.NewCategory(1, "Electronics"),
+		domain.NewCategory(2, "Laptops"),
+		domain.NewCategory(3, "Phones"),
+	}
+	store := mockCategoryStore{categories}
 	mux := http.NewServeMux()
-	mux.Handle("/", handleIndex())
+	mux.Handle("/", handleIndex(store))
 
 	request, _ := http.NewRequest(http.MethodGet, "/", nil)
 	got := httptest.NewRecorder()
 	mux.ServeHTTP(got, request)
 
 	want := httptest.NewRecorder()
-	views.Index().Render(context.Background(), want)
+	wantCategories, _ := store.ReadAll()
+	views.Index(wantCategories).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
 func TestCategoryHandler(t *testing.T) {
-	products := []domain.Product{
-		domain.NewProduct(1, "Huawei"),
-		domain.NewProduct(2, "Lenovo"),
-		domain.NewProduct(3, "ThinkPad"),
+	categories := []domain.Category{
+		domain.NewCategory(0, "Electronics"),
+		domain.NewCategory(1, "Laptops"),
+		domain.NewCategory(2, "Phones"),
 	}
-	store := InMemoryStore{products}
+	categoryStore := mockCategoryStore{categories}
+	products := []domain.Product{
+		domain.NewProduct(0, "MacBook", 0, 1, 100),
+		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
+		domain.NewProduct(2, "Foundation", 2, 1, 100),
+	}
+	productStore := InMemoryStore{products}
 	mux := http.NewServeMux()
-	mux.Handle("/category/{name}", handleCategory(store))
+	mux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
 
-	request, _ := http.NewRequest(http.MethodGet, "/category/Laptops", nil)
+	request, _ := http.NewRequest(http.MethodGet, "/category/1", nil)
 	got := httptest.NewRecorder()
 	mux.ServeHTTP(got, request)
 
 	want := httptest.NewRecorder()
-	test, _ := store.ReadAll()
-	views.Category("Laptops", test).Render(context.Background(), want)
+	wantProducts, _ := productStore.ReadAll()
+	views.Category(categories[1].Name(), wantProducts).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
@@ -49,13 +62,13 @@ func TestCategoryHandler(t *testing.T) {
 
 func TestProductHandler(t *testing.T) {
 	products := []domain.Product{
-		domain.NewProduct(1, "Huawei"),
-		domain.NewProduct(2, "Lenovo"),
-		domain.NewProduct(3, "ThinkPad"),
+		domain.NewProduct(0, "MacBook", 0, 1, 100),
+		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
+		domain.NewProduct(2, "Foundation", 2, 1, 100),
 	}
 	store := InMemoryStore{products}
 	mux := http.NewServeMux()
-	mux.Handle("/product/{productID}", handleProduct(store))
+	mux.Handle("/product/{id}", handleProduct(store))
 
 	request, _ := http.NewRequest(http.MethodGet, "/product/2", nil)
 	got := httptest.NewRecorder()
@@ -66,6 +79,22 @@ func TestProductHandler(t *testing.T) {
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
+}
+
+type mockCategoryStore struct {
+	db []domain.Category
+}
+
+func newMockCategoryStore(db []domain.Category) *mockCategoryStore {
+	return &mockCategoryStore{db: db}
+}
+
+func (st mockCategoryStore) Read(id int) (domain.Category, error) {
+	return st.db[id], nil
+}
+
+func (st mockCategoryStore) ReadAll() ([]domain.Category, error) {
+	return st.db, nil
 }
 
 func checkResponseStatus(t testing.TB, got, want int) {

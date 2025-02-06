@@ -8,21 +8,11 @@ import (
 	"strconv"
 )
 
-func handleIndex() http.Handler {
-	renderer := views.Index()
+func handleIndex(store domain.CategoryStore) http.Handler {
+	renderer := views.Index
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			renderer.Render(r.Context(), w)
-		},
-	)
-}
-
-func handleCategory(store domain.ProductStore) http.Handler {
-	renderer := views.Category
-	return http.HandlerFunc(
-		func(w http.ResponseWriter, r *http.Request) {
-			products, err := store.ReadAll()
+			categories, err := store.ReadAll()
 			if err != nil {
 				log.Printf("Category Handler: %s", err)
 				http.NotFound(w, r)
@@ -30,7 +20,38 @@ func handleCategory(store domain.ProductStore) http.Handler {
 			}
 
 			w.WriteHeader(http.StatusOK)
-			renderer(r.PathValue("name"), products).Render(r.Context(), w)
+			renderer(categories).Render(r.Context(), w)
+		},
+	)
+}
+
+func handleCategory(categoryStore domain.CategoryStore, productStore domain.ProductStore) http.Handler {
+	renderer := views.Category
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			id, err := strconv.Atoi(r.PathValue("id"))
+			if err != nil {
+				log.Printf("Category Handler: %s", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			category, err := categoryStore.Read(id)
+			if err != nil {
+				log.Printf("Category Handler: %s", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			products, err := productStore.ReadAllByFilter(id)
+			if err != nil {
+				log.Printf("Category Handler: %s", err)
+				http.NotFound(w, r)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+			renderer(category.Name(), products).Render(r.Context(), w)
 		},
 	)
 }

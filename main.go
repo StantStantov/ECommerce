@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Stant/ECommerce/stores"
 	"context"
 	"database/sql"
 	"log"
@@ -22,14 +23,15 @@ func main() {
 	}
 	defer db.Close()
 	productStore := newSQLProductStore(db)
+	categoryStore := stores.NewCategoryStore(db)
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())
 
 	styles := http.FileServer(http.Dir("views/static"))
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
-	serveMux.Handle("/", handleIndex())
-	serveMux.Handle("/category/{name}", handleCategory(productStore))
+	serveMux.Handle("/", handleIndex(categoryStore))
+	serveMux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
 	serveMux.Handle("/product/{id}", handleProduct(productStore))
 
 	server := &http.Server{
