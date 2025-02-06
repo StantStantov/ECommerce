@@ -25,7 +25,7 @@ func (st SQLProductStore) Read(id int) (domain.Product, error) {
 	if err := row.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
 		return domain.Product{}, fmt.Errorf("SQL Read: %v", err)
 	}
-	return domain.NewProduct(productID, name), nil
+	return domain.NewProduct(productID, name, sellerID, categoryID, price), nil
 }
 
 func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
@@ -46,7 +46,30 @@ func (st SQLProductStore) ReadAll() ([]domain.Product, error) {
 		if err := rows.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
 			return nil, err
 		}
-		products = append(products, domain.NewProduct(productID, name))
+		products = append(products, domain.NewProduct(productID, name, sellerID, categoryID, price))
+	}
+	return products, nil
+}
+
+func (st SQLProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
+	q := "SELECT * FROM products WHERE category_id = $1"
+	rows, err := st.db.Query(q, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	products := []domain.Product{}
+	defer rows.Close()
+	for rows.Next() {
+		var productID int
+		var name string
+		var sellerID int
+		var categoryID int
+		var price float32
+		if err := rows.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
+			return nil, err
+		}
+		products = append(products, domain.NewProduct(productID, name, sellerID, categoryID, price))
 	}
 	return products, nil
 }

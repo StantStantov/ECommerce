@@ -19,3 +19,13 @@ func (st InMemoryStore) Read(id int) (domain.Product, error) {
 func (st InMemoryStore) ReadAll() ([]domain.Product, error) {
 	return st.db, nil
 }
+
+func (st InMemoryStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
+	products := []domain.Product{}
+	for _, product := range st.db {
+		if product.CategoryID() == categoryID {
+			products = append(products, product)
+		}
+	}
+	return products, nil
+}
