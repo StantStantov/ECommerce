@@ -44,7 +44,7 @@ func TestCategoryHandler(t *testing.T) {
 		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
 		domain.NewProduct(2, "Foundation", 2, 1, 100),
 	}
-	productStore := InMemoryStore{products}
+	productStore := mockProductStore{products}
 	mux := http.NewServeMux()
 	mux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
 
@@ -66,7 +66,7 @@ func TestProductHandler(t *testing.T) {
 		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
 		domain.NewProduct(2, "Foundation", 2, 1, 100),
 	}
-	store := InMemoryStore{products}
+	store := mockProductStore{products}
 	mux := http.NewServeMux()
 	mux.Handle("/product/{id}", handleProduct(store))
 
@@ -79,6 +79,32 @@ func TestProductHandler(t *testing.T) {
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
+}
+
+type mockProductStore struct {
+	db []domain.Product
+}
+
+func newmockProductStore(db []domain.Product) *mockProductStore {
+	return &mockProductStore{db: db}
+}
+
+func (st mockProductStore) Read(id int) (domain.Product, error) {
+	return st.db[id], nil
+}
+
+func (st mockProductStore) ReadAll() ([]domain.Product, error) {
+	return st.db, nil
+}
+
+func (st mockProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
+	products := []domain.Product{}
+	for _, product := range st.db {
+		if product.CategoryID() == categoryID {
+			products = append(products, product)
+		}
+	}
+	return products, nil
 }
 
 type mockCategoryStore struct {
