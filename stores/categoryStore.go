@@ -26,7 +26,7 @@ func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 }
 
 func (st CategoryStore) ReadAll() ([]domain.Category, error) {
-	q := "SELECT * FROM products"
+	q := "SELECT * FROM categories"
 	rows, err := st.db.Query(q)
 	if err != nil {
 		return nil, err
