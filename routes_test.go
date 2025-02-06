@@ -5,24 +5,18 @@ import (
 	"Stant/ECommerce/views"
 	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestIndexHandler(t *testing.T) {
-	categories := []domain.Category{
-		domain.NewCategory(1, "Electronics"),
-		domain.NewCategory(2, "Laptops"),
-		domain.NewCategory(3, "Phones"),
-	}
-	store := mockCategoryStore{categories}
-	mux := http.NewServeMux()
-	mux.Handle("/", handleIndex(store))
+	store := newMockCategoryStore()
+	mux := newMockServer(store, nil)
 
-	request, _ := http.NewRequest(http.MethodGet, "/", nil)
 	got := httptest.NewRecorder()
-	mux.ServeHTTP(got, request)
+	mux.ServeHTTP(got, newMockGetRequest(t, "/", nil))
 
 	want := httptest.NewRecorder()
 	wantCategories, _ := store.ReadAll()
@@ -33,49 +27,32 @@ func TestIndexHandler(t *testing.T) {
 }
 
 func TestCategoryHandler(t *testing.T) {
-	categories := []domain.Category{
-		domain.NewCategory(0, "Electronics"),
-		domain.NewCategory(1, "Laptops"),
-		domain.NewCategory(2, "Phones"),
-	}
-	categoryStore := mockCategoryStore{categories}
-	products := []domain.Product{
-		domain.NewProduct(0, "MacBook", 0, 1, 100),
-		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
-		domain.NewProduct(2, "Foundation", 2, 1, 100),
-	}
-	productStore := mockProductStore{products}
-	mux := http.NewServeMux()
-	mux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
+	categoryStore := newMockCategoryStore()
+	productStore := newMockProductStore()
+	mux := newMockServer(categoryStore, productStore)
 
-	request, _ := http.NewRequest(http.MethodGet, "/category/1", nil)
 	got := httptest.NewRecorder()
-	mux.ServeHTTP(got, request)
+	mux.ServeHTTP(got, newMockGetRequest(t, "/category/1", nil))
 
 	want := httptest.NewRecorder()
+	wantCategory, _ := categoryStore.Read(1)
 	wantProducts, _ := productStore.ReadAll()
-	views.Category(categories[1].Name(), wantProducts).Render(context.Background(), want)
+	views.Category(wantCategory.Name(), wantProducts).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
 func TestProductHandler(t *testing.T) {
-	products := []domain.Product{
-		domain.NewProduct(0, "MacBook", 0, 1, 100),
-		domain.NewProduct(1, "ThinkPad", 1, 1, 100),
-		domain.NewProduct(2, "Foundation", 2, 1, 100),
-	}
-	store := mockProductStore{products}
-	mux := http.NewServeMux()
-	mux.Handle("/product/{id}", handleProduct(store))
+	store := newMockProductStore()
+	mux := newMockServer(nil, store)
 
-	request, _ := http.NewRequest(http.MethodGet, "/product/2", nil)
 	got := httptest.NewRecorder()
-	mux.ServeHTTP(got, request)
+	mux.ServeHTTP(got, newMockGetRequest(t, "/product/2", nil))
 
 	want := httptest.NewRecorder()
-	views.Product(products[2]).Render(context.Background(), want)
+	wantProduct, _ := store.Read(2)
+	views.Product(wantProduct).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
@@ -85,8 +62,14 @@ type mockProductStore struct {
 	db []domain.Product
 }
 
-func newmockProductStore(db []domain.Product) *mockProductStore {
-	return &mockProductStore{db: db}
+func newMockProductStore() *mockProductStore {
+	return &mockProductStore{
+		db: []domain.Product{
+			domain.NewProduct(0, "MacBook", 0, 1, 100),
+			domain.NewProduct(1, "ThinkPad", 1, 1, 100),
+			domain.NewProduct(2, "Foundation", 2, 1, 100),
+		},
+	}
 }
 
 func (st mockProductStore) Read(id int) (domain.Product, error) {
@@ -111,8 +94,14 @@ type mockCategoryStore struct {
 	db []domain.Category
 }
 
-func newMockCategoryStore(db []domain.Category) *mockCategoryStore {
-	return &mockCategoryStore{db: db}
+func newMockCategoryStore() *mockCategoryStore {
+	return &mockCategoryStore{
+		db: []domain.Category{
+			domain.NewCategory(1, "Electronics"),
+			domain.NewCategory(2, "Laptops"),
+			domain.NewCategory(3, "Phones"),
+		},
+	}
 }
 
 func (st mockCategoryStore) Read(id int) (domain.Category, error) {
@@ -121,6 +110,27 @@ func (st mockCategoryStore) Read(id int) (domain.Category, error) {
 
 func (st mockCategoryStore) ReadAll() ([]domain.Category, error) {
 	return st.db, nil
+}
+
+func newMockServer(categoryStore *mockCategoryStore, productStore *mockProductStore) *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.Handle("/", handleIndex(categoryStore))
+	mux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
+	mux.Handle("/product/{id}", handleProduct(productStore))
+	return mux
+}
+
+func newMockGetRequest(t testing.TB, url string, body io.Reader) *http.Request {
+	request, err := http.NewRequest(http.MethodGet, url, body)
+	checkError(t, err, nil)
+	return request
+}
+
+func checkError(t testing.TB, got, want error) {
+	t.Helper()
+	if got != want {
+		t.Errorf("Did not get correct Error: got: %q, want: %q", got, want)
+	}
 }
 
 func checkResponseStatus(t testing.TB, got, want int) {
