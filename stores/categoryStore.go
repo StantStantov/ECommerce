@@ -3,7 +3,6 @@ package stores
 import (
 	"Stant/ECommerce/domain"
 	"database/sql"
-	"fmt"
 )
 
 type CategoryStore struct {
@@ -17,12 +16,11 @@ func NewCategoryStore(db *sql.DB) *CategoryStore {
 func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 	q := "SELECT * FROM categories WHERE category_id = $1"
 	row := st.db.QueryRow(q, categoryID)
-	var id int
-	var name string
-	if err := row.Scan(&id, &name); err != nil {
-		return domain.Category{}, fmt.Errorf("SQL Read: %v", err)
+	category, err := scanCategory(row)
+	if err != nil {
+		return category, err
 	}
-	return domain.NewCategory(id, name), nil
+	return category, nil
 }
 
 func (st CategoryStore) ReadAll() ([]domain.Category, error) {
@@ -35,12 +33,11 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 	categories := []domain.Category{}
 	defer rows.Close()
 	for rows.Next() {
-		var id int
-		var name string
-		if err := rows.Scan(&id, &name); err != nil {
-			return nil, fmt.Errorf("SQL ReadAll: %v", err)
+		category, err := scanCategory(rows)
+		if err != nil {
+			return nil, err
 		}
-		categories = append(categories, domain.NewCategory(id, name))
+		categories = append(categories, category)
 	}
 	return categories, nil
 }

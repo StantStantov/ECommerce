@@ -17,15 +17,12 @@ func NewProductStore(db *sql.DB) *ProductStore {
 func (st ProductStore) Read(id int) (domain.Product, error) {
 	q := "SELECT * FROM products WHERE product_id = $1"
 	row := st.db.QueryRow(q, id)
-	var productID int
-	var name string
-	var sellerID int
-	var categoryID int
-	var price float32
-	if err := row.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
-		return domain.Product{}, fmt.Errorf(" Read: %v", err)
+
+	product, err := scanProduct(row)
+	if err != nil {
+		return domain.Product{}, fmt.Errorf("ProductStore Read: %v", err)
 	}
-	return domain.NewProduct(productID, name, sellerID, categoryID, price), nil
+	return product, nil
 }
 
 func (st ProductStore) ReadAll() ([]domain.Product, error) {
@@ -38,15 +35,11 @@ func (st ProductStore) ReadAll() ([]domain.Product, error) {
 	products := []domain.Product{}
 	defer rows.Close()
 	for rows.Next() {
-		var productID int
-		var name string
-		var sellerID int
-		var categoryID int
-		var price float32
-		if err := rows.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
-			return nil, err
+		product, err := scanProduct(rows)
+		if err != nil {
+			return nil, fmt.Errorf("ProductStore ReadAll: %v", err)
 		}
-		products = append(products, domain.NewProduct(productID, name, sellerID, categoryID, price))
+		products = append(products, product)
 	}
 	return products, nil
 }
@@ -61,15 +54,11 @@ func (st ProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error)
 	products := []domain.Product{}
 	defer rows.Close()
 	for rows.Next() {
-		var productID int
-		var name string
-		var sellerID int
-		var categoryID int
-		var price float32
-		if err := rows.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
-			return nil, err
+		product, err := scanProduct(rows)
+		if err != nil {
+			return nil, fmt.Errorf("ProductStore ReadAllByFilter: %v", err)
 		}
-		products = append(products, domain.NewProduct(productID, name, sellerID, categoryID, price))
+		products = append(products, product)
 	}
 	return products, nil
 }
