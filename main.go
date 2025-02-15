@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Stant/ECommerce/domain"
 	"Stant/ECommerce/stores"
 	"context"
 	"database/sql"
@@ -27,12 +28,7 @@ func main() {
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())
 
-	styles := http.FileServer(http.Dir("views/static"))
-	serveMux := &http.ServeMux{}
-	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
-	serveMux.Handle("/", handleIndex(categoryStore))
-	serveMux.Handle("/category/{id}", handleCategory(categoryStore, productStore))
-	serveMux.Handle("/product/{id}", handleProduct(productStore))
+	serveMux := NewMux(categoryStore, productStore)
 
 	server := &http.Server{
 		Addr:    "localhost:5050",
@@ -48,4 +44,14 @@ func main() {
 
 	<-ctx.Done()
 	log.Println("Server stopped listening")
+}
+
+func NewMux(categories domain.CategoryStore, products domain.ProductStore) *http.ServeMux {
+	styles := http.FileServer(http.Dir("views/static"))
+	serveMux := &http.ServeMux{}
+	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
+	serveMux.Handle("/", HandleIndex(categories))
+	serveMux.Handle("/category/{id}", HandleCategory(categories, products))
+	serveMux.Handle("/product/{id}", HandleProduct(products))
+	return serveMux
 }
