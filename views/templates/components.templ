@@ -1,0 +1,24 @@
+package views
+
+templ head() {
+	<!DOCTYPE html>
+	<head>
+		<meta charset="utf8"/>
+		<title>TheCompany Market</title>
+		<link rel="stylesheet" href="static/css/styles.css"/>
+	</head>
+}
+
+templ header() {
+	<header class="top-bar">
+		<a href={ templ.URL("/") }>
+			<h1>TheCompany</h1>
+		</a>
+	</header>
+}
+
+templ footer() {
+	<footer>
+		<p>© 2025 TheCompany</p>
+	</footer>
+}

@@ -1,6 +1,9 @@
 package views
 
-import "Stant/ECommerce/domain"
+import (
+	"Stant/ECommerce/domain"
+	"strconv"
+)
 
 templ Product(product domain.Product) {
 	@head()
@@ -13,6 +16,9 @@ templ Product(product domain.Product) {
 	</html>
 }
 
-templ productBody(products domain.Product) {
-	<h2>{ products.Name() }</h2>
+templ productBody(product domain.Product) {
+	<h2>{ product.Name() }</h2>
+	<h2>{ product.Category() }</h2>
+	<h2>{ product.Seller() }</h2>
+	<h2>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</h2>
 }

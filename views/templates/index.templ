@@ -16,21 +16,6 @@ templ Index(categories []domain.Category) {
 	</html>
 }
 
-templ head() {
-	<!DOCTYPE html>
-	<head>
-		<meta charset="utf8"/>
-		<title>TheCompany Market</title>
-		<link rel="stylesheet" href="static/css/styles.css"/>
-	</head>
-}
-
-templ header() {
-	<header class="top-bar">
-		<h1>TheCompany</h1>
-	</header>
-}
-
 templ indexBody(categories []domain.Category) {
 	<div class="main-body">
 		<div class="grid">
@@ -49,10 +34,4 @@ templ categoryCard(category domain.Category) {
 			</h2>
 		</a>
 	</div>
-}
-
-templ footer() {
-	<footer>
-		<p>© 2025 TheCompany</p>
-	</footer>
 }

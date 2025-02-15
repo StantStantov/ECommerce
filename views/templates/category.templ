@@ -26,5 +26,7 @@ templ categoryBody(name string, products []domain.Product) {
 templ productCard(product domain.Product) {
 	<a href={ templ.URL("/product/" + strconv.Itoa(product.ID())) }>
 		<div>{ product.Name() }</div>
+		<div>{ product.Seller() }</div>
+		<div>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</div>
 	</a>
 }
