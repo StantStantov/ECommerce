@@ -15,7 +15,14 @@ func NewProductStore(db *sql.DB) *ProductStore {
 }
 
 func (st ProductStore) Read(id int) (domain.Product, error) {
-	q := "SELECT * FROM products WHERE product_id = $1"
+	q := `
+  SELECT p.product_id, p.product_name, s.seller_name, c.category_name, p.product_price
+  FROM products p
+  JOIN categories c ON p.category_id = c.category_id
+  JOIN sellers s ON p.seller_id = s.seller_id
+  WHERE p.product_id = $1
+  ;
+  `
 	row := st.db.QueryRow(q, id)
 
 	product, err := scanProduct(row)
@@ -26,7 +33,13 @@ func (st ProductStore) Read(id int) (domain.Product, error) {
 }
 
 func (st ProductStore) ReadAll() ([]domain.Product, error) {
-	q := "SELECT * FROM products"
+	q := `
+  SELECT p.product_id, p.product_name, s.seller_name, c.category_name, p.product_price
+  FROM products p
+  JOIN categories c ON p.category_id = c.category_id
+  JOIN sellers s ON p.seller_id = s.seller_id
+  ;
+  `
 	rows, err := st.db.Query(q)
 	if err != nil {
 		return nil, err
@@ -45,7 +58,14 @@ func (st ProductStore) ReadAll() ([]domain.Product, error) {
 }
 
 func (st ProductStore) ReadAllByFilter(categoryID int) ([]domain.Product, error) {
-	q := "SELECT * FROM products WHERE category_id = $1"
+	q := `
+  SELECT p.product_id, p.product_name, s.seller_name, c.category_name, p.product_price
+  FROM products p
+  JOIN categories c ON p.category_id = c.category_id
+  JOIN sellers s ON p.seller_id = s.seller_id
+  WHERE c.category_id = $1
+  ;
+  `
 	rows, err := st.db.Query(q, categoryID)
 	if err != nil {
 		return nil, err

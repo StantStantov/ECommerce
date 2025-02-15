@@ -9,13 +9,13 @@ type sqlRow interface {
 func scanProduct(row sqlRow) (domain.Product, error) {
 	var productID int
 	var name string
-	var sellerID int
-	var categoryID int
-	var price float32
-	if err := row.Scan(&productID, &name, &sellerID, &categoryID, &price); err != nil {
+	var seller string
+	var category string
+	var price float64
+	if err := row.Scan(&productID, &name, &seller, &category, &price); err != nil {
 		return domain.Product{}, err
 	}
-	return domain.NewProduct(productID, name, sellerID, categoryID, price), nil
+	return domain.NewProduct(productID, name, seller, category, price), nil
 }
 
 func scanCategory(row sqlRow) (domain.Category, error) {

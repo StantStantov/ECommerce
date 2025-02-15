@@ -14,7 +14,12 @@ func NewCategoryStore(db *sql.DB) *CategoryStore {
 }
 
 func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
-	q := "SELECT * FROM categories WHERE category_id = $1"
+	q := `
+  SELECT * 
+  FROM categories 
+  WHERE category_id = $1
+  ;
+  `
 	row := st.db.QueryRow(q, categoryID)
 	category, err := scanCategory(row)
 	if err != nil {
@@ -24,7 +29,11 @@ func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 }
 
 func (st CategoryStore) ReadAll() ([]domain.Category, error) {
-	q := "SELECT * FROM categories"
+	q := `
+  SELECT * 
+  FROM categories
+  ;
+  `
 	rows, err := st.db.Query(q)
 	if err != nil {
 		return nil, err
