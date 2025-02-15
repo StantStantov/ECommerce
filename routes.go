@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func handleIndex(store domain.CategoryStore) http.Handler {
+func HandleIndex(store domain.CategoryStore) http.Handler {
 	renderer := views.Index
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func handleIndex(store domain.CategoryStore) http.Handler {
 	)
 }
 
-func handleCategory(categoryStore domain.CategoryStore, productStore domain.ProductStore) http.Handler {
+func HandleCategory(categoryStore domain.CategoryStore, productStore domain.ProductStore) http.Handler {
 	renderer := views.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func handleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 	)
 }
 
-func handleProduct(store domain.ProductStore) http.Handler {
+func HandleProduct(store domain.ProductStore) http.Handler {
 	renderer := views.Product
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
