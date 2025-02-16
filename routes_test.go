@@ -17,7 +17,7 @@ import (
 )
 
 func TestHandlers(t *testing.T) {
-	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
 	if err != nil || db.Ping() != nil {
 		t.Fatalf("Database: %s\n", err)
 	}
