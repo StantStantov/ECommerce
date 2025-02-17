@@ -25,10 +25,11 @@ func main() {
 	defer db.Close()
 	productStore := stores.NewProductStore(db)
 	categoryStore := stores.NewCategoryStore(db)
+	sellerStore := stores.NewSellerStore(db)
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())
 
-	serveMux := NewMux(categoryStore, productStore)
+	serveMux := NewMux(categoryStore, sellerStore, productStore)
 
 	server := &http.Server{
 		Addr:    "localhost:5050",
@@ -46,12 +47,13 @@ func main() {
 	log.Println("Server stopped listening")
 }
 
-func NewMux(categories domain.CategoryStore, products domain.ProductStore) *http.ServeMux {
+func NewMux(categories domain.CategoryStore, sellers domain.SellerStore, products domain.ProductStore) *http.ServeMux {
 	styles := http.FileServer(http.Dir("views/static"))
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
 	serveMux.Handle("/", HandleIndex(categories))
 	serveMux.Handle("/category/{id}", HandleCategory(categories, products))
+	serveMux.Handle("/seller/{id}", HandleSeller(sellers, products))
 	serveMux.Handle("/product/{id}", HandleProduct(products))
 	return serveMux
 }
