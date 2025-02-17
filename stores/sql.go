@@ -28,3 +28,12 @@ func scanCategory(row sqlRow) (domain.Category, error) {
 	}
 	return domain.NewCategory(id, name), nil
 }
+
+func scanSeller(row sqlRow) (domain.Seller, error) {
+	var id int32
+	var name string
+	if err := row.Scan(&id, &name); err != nil {
+		return domain.Seller{}, err
+	}
+	return domain.NewSeller(id, name), nil
+}

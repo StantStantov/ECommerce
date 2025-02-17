@@ -10,3 +10,8 @@ type CategoryStore interface {
 	Read(id int) (Category, error)
 	ReadAll() ([]Category, error)
 }
+
+type SellerStore interface {
+	Read(id int) (Seller, error)
+	ReadAll() ([]Seller, error)
+}
