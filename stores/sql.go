@@ -7,19 +7,21 @@ type sqlRow interface {
 }
 
 func scanProduct(row sqlRow) (domain.Product, error) {
-	var productID int
+	var productID int32
 	var name string
-	var seller string
-	var category string
+	var sellerID int32
+	var sellerName string
+	var categoryID int32
+	var categoryName string
 	var price float64
-	if err := row.Scan(&productID, &name, &seller, &category, &price); err != nil {
+	if err := row.Scan(&productID, &name, &sellerID, &sellerName, &categoryID, &categoryName, &price); err != nil {
 		return domain.Product{}, err
 	}
-	return domain.NewProduct(productID, name, seller, category, price), nil
+	return domain.NewProduct(productID, name, domain.NewSeller(sellerID, sellerName), domain.NewCategory(categoryID, categoryName), price), nil
 }
 
 func scanCategory(row sqlRow) (domain.Category, error) {
-	var id int
+	var id int32
 	var name string
 	if err := row.Scan(&id, &name); err != nil {
 		return domain.Category{}, err

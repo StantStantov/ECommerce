@@ -36,12 +36,12 @@ func TestProductStore(t *testing.T) {
 func testRead(t *testing.T, store domain.ProductStore) {
 	t.Helper()
 
-	got, err := store.Read(1)
+	got, err := store.Read(2)
 	if err != nil {
 		t.Error(err)
 	}
 
-	want := domain.NewProduct(1, "ThinkPad", "Lenovo", "Laptops", 10000)
+	want := domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000)
 
 	checkProduct(t, got, want)
 }
@@ -55,7 +55,12 @@ func testReadAll(t *testing.T, store domain.ProductStore) {
 	}
 
 	want := []domain.Product{
-		domain.NewProduct(1, "ThinkPad", "Lenovo", "Laptops", 10000),
+		domain.NewProduct(1, "MateBook", domain.NewSeller(1, "HUAWEI"), domain.NewCategory(1, "Laptops"), 15000),
+		domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000),
+		domain.NewProduct(3, "MacBook 1", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
+		domain.NewProduct(4, "MacBook 2", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
+		domain.NewProduct(5, "MacBook 3", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
+		domain.NewProduct(6, "Iphone", domain.NewSeller(3, "Apple"), domain.NewCategory(2, "Phones"), 15000),
 	}
 
 	checkProducts(t, got, want)
@@ -64,13 +69,13 @@ func testReadAll(t *testing.T, store domain.ProductStore) {
 func testReadAllByFilter(t *testing.T, store domain.ProductStore) {
 	t.Helper()
 
-	got, err := store.ReadAllByFilter(1)
+	got, err := store.ReadAllByFilter(1, 2)
 	if err != nil {
 		t.Error(err)
 	}
 
 	want := []domain.Product{
-		domain.NewProduct(1, "ThinkPad", "Lenovo", "Laptops", 10000),
+		domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000),
 	}
 
 	checkProducts(t, got, want)

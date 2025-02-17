@@ -52,6 +52,8 @@ func testCategoryReadAll(t *testing.T, store domain.CategoryStore) {
 
 	want := []domain.Category{
 		domain.NewCategory(1, "Laptops"),
+		domain.NewCategory(2, "Phones"),
+		domain.NewCategory(3, "Electronics"),
 	}
 
 	if !slices.EqualFunc(got, want, isEqualCategories) {
