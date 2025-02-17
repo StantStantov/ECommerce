@@ -1,15 +1,15 @@
 package domain
 
 type Category struct {
-	id   int
+	id   int32
 	name string
 }
 
-func NewCategory(id int, name string) Category {
+func NewCategory(id int32, name string) Category {
 	return Category{id: id, name: name}
 }
 
-func (c Category) ID() int {
+func (c Category) ID() int32 {
   return c.id
 }
 

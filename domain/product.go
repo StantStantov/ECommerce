@@ -1,14 +1,14 @@
 package domain
 
 type Product struct {
-	id       int
+	id       int32
 	price    float64
-	seller   string
-	category string
+	seller   Seller
+	category Category
 	name     string
 }
 
-func NewProduct(id int, name string, seller string, category string, price float64) Product {
+func NewProduct(id int32, name string, seller Seller, category Category, price float64) Product {
 	return Product{
 		id:       id,
 		name:     name,
@@ -18,7 +18,7 @@ func NewProduct(id int, name string, seller string, category string, price float
 	}
 }
 
-func (p Product) ID() int {
+func (p Product) ID() int32 {
 	return p.id
 }
 
@@ -26,11 +26,11 @@ func (p Product) Name() string {
 	return p.name
 }
 
-func (p Product) Seller() string {
+func (p Product) Seller() Seller {
 	return p.seller
 }
 
-func (p Product) Category() string {
+func (p Product) Category() Category {
 	return p.category
 }
 
