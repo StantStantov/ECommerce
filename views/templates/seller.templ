@@ -1,0 +1,21 @@
+package views
+
+import "Stant/ECommerce/domain"
+
+templ Seller(name string, products []domain.Product) {
+	@head()
+	<html>
+		<body>
+			@header()
+			@sellerBody(name, products)
+			@footer()
+		</body>
+	</html>
+}
+
+templ sellerBody(name string, products []domain.Product) {
+	<h2>{ name }</h2>
+	for _, product := range products {
+		@productCard(product)
+	}
+}

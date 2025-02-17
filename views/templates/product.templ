@@ -18,7 +18,11 @@ templ Product(product domain.Product) {
 
 templ productBody(product domain.Product) {
 	<h2>{ product.Name() }</h2>
-	<h2>{ product.Category() }</h2>
-	<h2>{ product.Seller() }</h2>
+	<a href={ templ.URL("/category/" + strconv.FormatInt(int64(product.Category().ID()), 10)) }>
+		<h2>{ product.Category().Name() }</h2>
+	</a>
+	<a href={ templ.URL("/seller/" + strconv.FormatInt(int64(product.Seller().ID()), 10)) }>
+		<h2>{ product.Seller().Name() }</h2>
+	</a>
 	<h2>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</h2>
 }

@@ -28,7 +28,7 @@ templ indexBody(categories []domain.Category) {
 
 templ categoryCard(category domain.Category) {
 	<div class="grid-card">
-		<a href={ templ.URL("/category/" + strconv.Itoa(category.ID())) }>
+		<a href={ templ.URL("/category/" + strconv.FormatInt(int64(category.ID()), 10)) }>
 			<h2>
 				{ category.Name() }
 			</h2>

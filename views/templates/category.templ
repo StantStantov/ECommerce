@@ -24,9 +24,14 @@ templ categoryBody(name string, products []domain.Product) {
 }
 
 templ productCard(product domain.Product) {
-	<a href={ templ.URL("/product/" + strconv.Itoa(product.ID())) }>
+	<a href={ templ.URL("/product/" + strconv.FormatInt(int64(product.ID()), 10)) }>
 		<div>{ product.Name() }</div>
-		<div>{ product.Seller() }</div>
+		<a href={ templ.URL("/category/" + strconv.FormatInt(int64(product.Category().ID()), 10)) }>
+			<div>{ product.Category().Name() }</div>
+		</a>
+		<a href={ templ.URL("/seller/" + strconv.FormatInt(int64(product.Seller().ID()), 10)) }>
+			<div>{ product.Seller().Name() }</div>
+		</a>
 		<div>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</div>
 	</a>
 }
