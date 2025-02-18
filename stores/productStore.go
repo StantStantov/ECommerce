@@ -14,16 +14,18 @@ func NewProductStore(db *sql.DB) *ProductStore {
 	return &ProductStore{db: db}
 }
 
-func (st ProductStore) Read(id int) (domain.Product, error) {
-	q := `
+const getProduct = `
   SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
   FROM products p
   JOIN categories c ON p.category_id = c.category_id
   JOIN sellers s ON p.seller_id = s.seller_id
   WHERE p.product_id = $1
+  LIMIT 1
   ;
   `
-	row := st.db.QueryRow(q, id)
+
+func (st ProductStore) Read(id int) (domain.Product, error) {
+	row := st.db.QueryRow(getProduct, id)
 
 	product, err := scanProduct(row)
 	if err != nil {
@@ -32,15 +34,16 @@ func (st ProductStore) Read(id int) (domain.Product, error) {
 	return product, nil
 }
 
-func (st ProductStore) ReadAll() ([]domain.Product, error) {
-	q := `
+const getProducts = `
   SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
   FROM products p
   JOIN categories c ON p.category_id = c.category_id
   JOIN sellers s ON p.seller_id = s.seller_id
   ;
   `
-	rows, err := st.db.Query(q)
+
+func (st ProductStore) ReadAll() ([]domain.Product, error) {
+	rows, err := st.db.Query(getProducts)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +60,7 @@ func (st ProductStore) ReadAll() ([]domain.Product, error) {
 	return products, nil
 }
 
-const readAllByFilterQuery = `
+const getProductsByFilter = `
   SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
   FROM products p
   JOIN categories c ON p.category_id = c.category_id
@@ -69,7 +72,7 @@ const readAllByFilterQuery = `
   `
 
 func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.Product, error) {
-	rows, err := st.db.Query(readAllByFilterQuery, categoryID, sellerID)
+	rows, err := st.db.Query(getProductsByFilter, categoryID, sellerID)
 	if err != nil {
 		return nil, err
 	}

@@ -13,14 +13,15 @@ func NewCategoryStore(db *sql.DB) *CategoryStore {
 	return &CategoryStore{db: db}
 }
 
-func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
-	q := `
+const getCategory = `
   SELECT * 
   FROM categories 
-  WHERE category_id = $1
+  WHERE category_id = $1 LIMIT 1
   ;
   `
-	row := st.db.QueryRow(q, categoryID)
+
+func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
+	row := st.db.QueryRow(getCategory, categoryID)
 	category, err := scanCategory(row)
 	if err != nil {
 		return category, err
@@ -28,13 +29,14 @@ func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 	return category, nil
 }
 
-func (st CategoryStore) ReadAll() ([]domain.Category, error) {
-	q := `
+const getCategories = `
   SELECT * 
   FROM categories
   ;
   `
-	rows, err := st.db.Query(q)
+
+func (st CategoryStore) ReadAll() ([]domain.Category, error) {
+	rows, err := st.db.Query(getCategories)
 	if err != nil {
 		return nil, err
 	}
