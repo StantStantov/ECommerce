@@ -107,6 +107,63 @@ func testProductHandler(t *testing.T, server *http.ServeMux, store domain.Produc
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
+func BenchmarkHandlers(t *testing.B) {
+	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
+	if err != nil || db.Ping() != nil {
+		t.Fatalf("Database: %s\n", err)
+	}
+
+	categoryStore := stores.NewCategoryStore(db)
+	productStore := stores.NewProductStore(db)
+	sellerStore := stores.NewSellerStore(db)
+	server := NewMux(categoryStore, sellerStore, productStore)
+
+	t.Run("Index", func(t *testing.B) {
+		benchmarkCategory(t, server)
+	})
+	t.Run("Category", func(t *testing.B) {
+		benchmarkCategory(t, server)
+	})
+	t.Run("Seller", func(t *testing.B) {
+		benchmarkSeller(t, server)
+	})
+	t.Run("Product", func(t *testing.B) {
+		benchmarkProduct(t, server)
+	})
+}
+
+func benchmarkIndex(t *testing.B, server *http.ServeMux) {
+	t.Helper()
+	for range t.N {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetRequest(t, "/", nil))
+	}
+}
+
+func benchmarkCategory(t *testing.B, server *http.ServeMux) {
+	t.Helper()
+	for range t.N {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetRequest(t, "/category/1", nil))
+	}
+}
+
+func benchmarkSeller(t *testing.B, server *http.ServeMux) {
+	t.Helper()
+	for range t.N {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetRequest(t, "/seller/1", nil))
+	}
+}
+
+func benchmarkProduct(t *testing.B, server *http.ServeMux) {
+	t.Helper()
+	for range t.N {
+		response := httptest.NewRecorder()
+		server.ServeHTTP(response, newGetRequest(t, "/product/1", nil))
+	}
+}
+
 func newGetRequest(t testing.TB, url string, body io.Reader) *http.Request {
 	request, err := http.NewRequest(http.MethodGet, url, body)
 	checkError(t, err, nil)
