@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func HandleIndex(store domain.CategoryStore) http.Handler {
@@ -36,15 +38,31 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 				return
 			}
 
-			category, err := categoryStore.Read(id)
-			if err != nil {
-				log.Printf("Category Handler: %s", err)
-				http.NotFound(w, r)
-				return
-			}
+			categoryChan := make(chan domain.Category)
+			defer close(categoryChan)
+			productsChan := make(chan []domain.Product)
+			defer close(productsChan)
 
-			products, err := productStore.ReadAllByFilter(id, 0)
-			if err != nil {
+			var eg errgroup.Group
+			eg.Go(func() error {
+				category, err := categoryStore.Read(id)
+				if err != nil {
+					return err
+				}
+				categoryChan <- category
+				return nil
+			})
+			eg.Go(func() error {
+				products, err := productStore.ReadAllByFilter(id, 0)
+				if err != nil {
+					return err
+				}
+				productsChan <- products
+				return nil
+			})
+			category := <-categoryChan
+			products := <-productsChan
+			if err := eg.Wait(); err != nil {
 				log.Printf("Category Handler: %s", err)
 				http.NotFound(w, r)
 				return
@@ -61,22 +79,37 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
-			println(r.URL.Query().Encode())
 			if err != nil {
 				log.Printf("Seller Handler: %s", err)
 				http.NotFound(w, r)
 				return
 			}
 
-			seller, err := sellerStore.Read(id)
-			if err != nil {
-				log.Printf("Seller Handler: %s", err)
-				http.NotFound(w, r)
-				return
-			}
+			sellerChan := make(chan domain.Seller)
+			defer close(sellerChan)
+			productsChan := make(chan []domain.Product)
+			defer close(productsChan)
 
-			products, err := productStore.ReadAllByFilter(0, id)
-			if err != nil {
+			var eg errgroup.Group
+			eg.Go(func() error {
+				seller, err := sellerStore.Read(id)
+				if err != nil {
+					return err
+				}
+				sellerChan <- seller
+				return nil
+			})
+			eg.Go(func() error {
+				products, err := productStore.ReadAllByFilter(0, id)
+				if err != nil {
+					return err
+				}
+				productsChan <- products
+				return nil
+			})
+			seller := <-sellerChan
+			products := <-productsChan
+			if err := eg.Wait(); err != nil {
 				log.Printf("Seller Handler: %s", err)
 				http.NotFound(w, r)
 				return
