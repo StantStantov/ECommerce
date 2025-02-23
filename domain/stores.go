@@ -15,3 +15,9 @@ type SellerStore interface {
 	Read(id int) (Seller, error)
 	ReadAll() ([]Seller, error)
 }
+
+type UserStore interface {
+	IsExists(email string) (bool, error)
+	Create(email, fisrtName, secondName, password string) error
+	Read(id int32) (User, error)
+}
