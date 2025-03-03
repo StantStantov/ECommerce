@@ -52,3 +52,12 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 	}
 	return categories, nil
 }
+
+func scanCategory(row sqlRow) (domain.Category, error) {
+	var id int32
+	var name string
+	if err := row.Scan(&id, &name); err != nil {
+		return domain.Category{}, err
+	}
+	return domain.NewCategory(id, name), nil
+}

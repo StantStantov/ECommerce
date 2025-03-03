@@ -3,8 +3,6 @@ package stores_test
 import (
 	"Stant/ECommerce/domain"
 	"Stant/ECommerce/stores"
-	"database/sql"
-	"os"
 	"slices"
 	"testing"
 
@@ -12,7 +10,7 @@ import (
 )
 
 func TestProductStore(t *testing.T) {
-	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
+	db, err := stores.NewDBConn()
 	if err != nil {
 		t.Fatal(err)
 	}

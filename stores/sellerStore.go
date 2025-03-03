@@ -52,3 +52,12 @@ func (st SellerStore) ReadAll() ([]domain.Seller, error) {
 	}
 	return sellers, nil
 }
+
+func scanSeller(row sqlRow) (domain.Seller, error) {
+	var id int32
+	var name string
+	if err := row.Scan(&id, &name); err != nil {
+		return domain.Seller{}, err
+	}
+	return domain.NewSeller(id, name), nil
+}

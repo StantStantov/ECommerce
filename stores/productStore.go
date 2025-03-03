@@ -88,3 +88,17 @@ func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.P
 	}
 	return products, nil
 }
+
+func scanProduct(row sqlRow) (domain.Product, error) {
+	var productID int32
+	var name string
+	var sellerID int32
+	var sellerName string
+	var categoryID int32
+	var categoryName string
+	var price float64
+	if err := row.Scan(&productID, &name, &sellerID, &sellerName, &categoryID, &categoryName, &price); err != nil {
+		return domain.Product{}, err
+	}
+	return domain.NewProduct(productID, name, domain.NewSeller(sellerID, sellerName), domain.NewCategory(categoryID, categoryName), price), nil
+}
