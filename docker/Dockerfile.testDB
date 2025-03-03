@@ -1,0 +1,16 @@
+FROM postgres AS runtime_init
+
+COPY ./build/sql/schema.sql /docker-entrypoint-initdb.d/001-schema.sql
+COPY ./build/sql/insert_data.sql /docker-entrypoint-initdb.d/002-insert.sql
+
+FROM runtime_init AS buildtime_init_builder
+RUN echo "exit 0" > /docker-entrypoint-initdb.d/100-exit_before_boot.sh
+ENV PGDATA=/pgdata
+RUN --mount=type=secret,id=ps_user,env=POSTGRES_USER \
+    --mount=type=secret,id=ps_password,env=POSTGRES_PASSWORD \
+    --mount=type=secret,id=ps_db,env=POSTGRES_DB \
+    docker-entrypoint.sh postgres
+
+FROM postgres AS buildtime_init
+ENV PGDATA=/pgdata
+COPY --chown=postgres:postgres --from=buildtime_init_builder /pgdata /pgdata
