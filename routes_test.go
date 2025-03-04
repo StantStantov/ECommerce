@@ -52,14 +52,14 @@ func TestHandlers(t *testing.T) {
 	})
 }
 
-func testIndexHandler(t *testing.T, server *http.ServeMux, store domain.CategoryStore) {
+func testIndexHandler(t *testing.T, server *http.ServeMux, categories domain.CategoryStore) {
 	t.Helper()
 
 	got := httptest.NewRecorder()
 	server.ServeHTTP(got, newGetRequest(t, "/", nil))
 
 	want := httptest.NewRecorder()
-	wantCategories, _ := store.ReadAll()
+	wantCategories, _ := categories.ReadAll()
 	views.Index(wantCategories).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
@@ -68,8 +68,8 @@ func testIndexHandler(t *testing.T, server *http.ServeMux, store domain.Category
 
 func testCategoryHandler(t *testing.T,
 	server *http.ServeMux,
-	categoryStore domain.CategoryStore,
-	productStore domain.ProductStore,
+	categories domain.CategoryStore,
+	products domain.ProductStore,
 ) {
 	t.Helper()
 
@@ -77,15 +77,18 @@ func testCategoryHandler(t *testing.T,
 	server.ServeHTTP(got, newGetRequest(t, "/category/1", nil))
 
 	want := httptest.NewRecorder()
-	wantCategory, _ := categoryStore.Read(1)
-	wantProducts, _ := productStore.ReadAllByFilter(1, 0)
+	wantCategory, _ := categories.Read(1)
+	wantProducts, _ := products.ReadAllByFilter(1, 0)
 	views.Category(wantCategory.Name(), wantProducts).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
-func testSellerHandler(t *testing.T, server *http.ServeMux, sellerStore domain.SellerStore, productStore domain.ProductStore) {
+func testSellerHandler(t *testing.T, server *http.ServeMux,
+	sellerStore domain.SellerStore,
+	productStore domain.ProductStore,
+) {
 	t.Helper()
 
 	got := httptest.NewRecorder()
