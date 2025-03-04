@@ -1,18 +1,20 @@
 package domain
 
 type User struct {
-	id         int32
-	email      string
-	firstName  string
-	secondName string
+	id             int32
+	email          string
+	firstName      string
+	secondName     string
+	hashedPassword string
 }
 
-func newUser(id int32, email, firstName, secondName string) User {
+func NewUser(id int32, email, firstName, secondName, hashedPassword string) User {
 	return User{
 		id:         id,
 		email:      email,
 		firstName:  firstName,
 		secondName: secondName,
+    hashedPassword: hashedPassword,
 	}
 }
 
@@ -21,7 +23,7 @@ func (u User) ID() int32 {
 }
 
 func (u User) Email() string {
-  return u.email
+	return u.email
 }
 
 func (u User) FirstName() string {
@@ -30,4 +32,8 @@ func (u User) FirstName() string {
 
 func (u User) SecondName() string {
 	return u.secondName
+}
+
+func (u User) HashedPassword() string {
+	return u.hashedPassword
 }
