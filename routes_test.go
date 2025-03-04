@@ -7,17 +7,19 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func TestHandlers(t *testing.T) {
-	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
+	db, err := stores.NewDBConn()
 	if err != nil || db.Ping() != nil {
 		t.Fatalf("Database: %s\n", err)
 	}
@@ -25,7 +27,8 @@ func TestHandlers(t *testing.T) {
 	categoryStore := stores.NewCategoryStore(db)
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
-	server := NewMux(categoryStore, sellerStore, productStore)
+	userStore := stores.NewUserStore(db)
+	server := NewMux(categoryStore, sellerStore, productStore, userStore)
 
 	t.Run("Test Index", func(t *testing.T) {
 		t.Parallel()
@@ -42,6 +45,10 @@ func TestHandlers(t *testing.T) {
 	t.Run("Test Product", func(t *testing.T) {
 		t.Parallel()
 		testProductHandler(t, server, productStore)
+	})
+	t.Run("Test Registration", func(t *testing.T) {
+		t.Parallel()
+		testRegisterHandler(t, server, userStore)
 	})
 }
 
@@ -107,6 +114,23 @@ func testProductHandler(t *testing.T, server *http.ServeMux, store domain.Produc
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
+func testRegisterHandler(t *testing.T, server *http.ServeMux, users domain.UserStore) {
+	t.Helper()
+
+	email := "user@test.com"
+	content := fmt.Sprintf("email=%s&firstName=test&secondName=test&password=12345", email)
+	body := strings.NewReader(content)
+	got := httptest.NewRecorder()
+	server.ServeHTTP(got, newPostRequest(t, "/register", body))
+
+	checkResponseStatus(t, got.Code, http.StatusFound)
+	exists, err := users.IsExists(email)
+	checkError(t, err, nil)
+	if !exists {
+		t.Errorf("Did not get correct User exist status: got: %v, want: %v", got, true)
+	}
+}
+
 func BenchmarkHandlers(t *testing.B) {
 	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
 	if err != nil || db.Ping() != nil {
@@ -116,10 +140,11 @@ func BenchmarkHandlers(t *testing.B) {
 	categoryStore := stores.NewCategoryStore(db)
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
-	server := NewMux(categoryStore, sellerStore, productStore)
+	userStore := stores.NewUserStore(db)
+	server := NewMux(categoryStore, sellerStore, productStore, userStore)
 
 	t.Run("Index", func(t *testing.B) {
-		benchmarkCategory(t, server)
+		benchmarkIndex(t, server)
 	})
 	t.Run("Category", func(t *testing.B) {
 		benchmarkCategory(t, server)
@@ -167,6 +192,13 @@ func benchmarkProduct(t *testing.B, server *http.ServeMux) {
 func newGetRequest(t testing.TB, url string, body io.Reader) *http.Request {
 	request, err := http.NewRequest(http.MethodGet, url, body)
 	checkError(t, err, nil)
+	return request
+}
+
+func newPostRequest(t testing.TB, url string, body io.Reader) *http.Request {
+	request, err := http.NewRequest(http.MethodPost, url, body)
+	checkError(t, err, nil)
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	return request
 }
 

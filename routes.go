@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -141,6 +142,49 @@ func HandleProduct(store domain.ProductStore) http.Handler {
 
 			w.WriteHeader(http.StatusOK)
 			renderer(product).Render(r.Context(), w)
+		},
+	)
+}
+
+func HandleRegistration(users domain.UserStore) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if err := r.ParseForm(); err != nil {
+				log.Printf("Register Handler: %s", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			email := r.FormValue("email")
+			firstName := r.FormValue("firstName")
+			secondName := r.FormValue("secondName")
+			password := r.FormValue("password")
+
+			hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+			if err != nil {
+				log.Printf("Register Handler: %s", err)
+				http.Error(w, "Fail to hash password", http.StatusInternalServerError)
+				return
+			}
+
+			exists, err := users.IsExists(email)
+			if err != nil {
+				log.Printf("Register Handler: %s", err)
+				http.Error(w, "SQL Error", http.StatusInternalServerError)
+				return
+			}
+			if exists {
+				http.Error(w, "User already exists", http.StatusConflict)
+				return
+			}
+			if err := users.Create(email, firstName, secondName, string(hash)); err != nil {
+				log.Printf("Register Handler: %s", err)
+				http.Error(w, "SQL Error", http.StatusInternalServerError)
+				return
+			}
+
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
 		},
 	)
 }

@@ -4,7 +4,6 @@ import (
 	"Stant/ECommerce/domain"
 	"Stant/ECommerce/stores"
 	"context"
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -18,10 +17,11 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	db, err := stores.NewDBConn()
 	if err != nil {
 		log.Fatalf("Database: %s\n", err)
 	}
+
 	defer db.Close()
 	productStore := stores.NewProductStore(db)
 	categoryStore := stores.NewCategoryStore(db)
@@ -33,7 +33,6 @@ func main() {
 	serveMux := NewMux(categoryStore, sellerStore, productStore, userStore)
 
 	server := &http.Server{
-		Addr:    "localhost:5050",
 		Handler: loggingMiddleware(serveMux),
 	}
 
