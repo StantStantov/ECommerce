@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"log"
+	"time"
+)
+
 type ProductStore interface {
 	Read(id int) (Product, error)
 	ReadAll() ([]Product, error)
@@ -21,4 +26,13 @@ type UserStore interface {
 	Create(email, fisrtName, secondName, password string) error
 	Read(id int32) (User, error)
 	ReadByEmail(email string) (User, error)
+}
+
+type SessionStore interface {
+	Create(sessionToken, csrfToken string, expireOn time.Time) error
+	Read(sessionToken string) (Session, error)
+	Delete(sessionToken string) error
+	DeleteAllExpired() error
+	StartCleanup(logger log.Logger, interval time.Duration) (chan<- struct{}, <-chan struct{})
+	StopCleanup(quit chan<- struct{}, done <-chan struct{})
 }
