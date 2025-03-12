@@ -22,12 +22,12 @@ const checkUser = `SELECT EXISTS
   `
 
 func (s UserStore) IsExists(email string) (bool, error) {
-  isExists := false
-  row := s.db.QueryRow(checkUser, email)
+	isExists := false
+	row := s.db.QueryRow(checkUser, email)
 
-  if err := row.Scan(&isExists); err != nil {
+	if err := row.Scan(&isExists); err != nil {
 		return false, fmt.Errorf("UserStore IsExists: %v", err)
-  }
+	}
 
 	return isExists, nil
 }
@@ -47,6 +47,46 @@ func (s UserStore) Create(email, fisrtName, secondName, password string) error {
 	return nil
 }
 
+const getUserByID = `SELECT * FROM users 
+  WHERE id = $1 
+  LIMIT 1
+  ;
+  `
+
 func (s UserStore) Read(id int32) (domain.User, error) {
-	return domain.User{}, nil
+	row := s.db.QueryRow(getUserByID, id)
+	user, err := scanUser(row)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("UserStore ReadByEmail: %v", err)
+	}
+	return user, nil
+}
+
+const getUserByEmail = `SELECT * FROM users 
+  WHERE email = $1
+  LIMIT 1
+  ;
+  `
+
+func (s UserStore) ReadByEmail(email string) (domain.User, error) {
+	row := s.db.QueryRow(getUserByEmail, email)
+	user, err := scanUser(row)
+	if err != nil {
+		return domain.User{}, fmt.Errorf("UserStore ReadByEmail: %v", err)
+	}
+	return user, nil
+}
+
+func scanUser(row sqlRow) (domain.User, error) {
+	var (
+		id             int32
+		email          string
+		firstName      string
+		secondName     string
+		hashedPassword string
+	)
+	if err := row.Scan(&id, &email, &firstName, &secondName, &hashedPassword); err != nil {
+		return domain.User{}, err
+	}
+	return domain.NewUser(id, email, firstName, secondName, hashedPassword), nil
 }
