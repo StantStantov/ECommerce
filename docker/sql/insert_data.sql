@@ -25,3 +25,19 @@ VALUES
   ('Iphone', 3, 2, 15000)
 ;
 
+INSERT INTO users 
+  (email, first_name, second_name, password)
+VALUES
+  ('readME@test.com', 'read', 'ME', '$2a$10$sgEy3LehHNpbZ7NjqDhMiejJ8gaQTcykfv1VFJL42aPN8pZJL45EW')
+;
+
+INSERT INTO sessions
+  (session_token, csrf_token, expire_on)
+VALUES
+  ('2-bJbG-BU5h1fKovzqoEnwOxDsz9bm1-8vVRHYav5Z29DcaDUchc0LNufSGCEjKFsXGNtn0ZF0FdcXi9_npSGg==',
+   'DpwoY8fzNfVyBnJDl9mEclJoZcWW8kxtZIo-CdMMvGnGfwzrrqwogUyVnUZknwazD_MXxEop5ewgxp2S-wTtig==',
+   '2025-03-13 14:33:57'),
+  ('lv1qhEGQgUn1Z3tFqKdCuvq_--W2ptuGp0oV5wRajtlC0sPN9xqsAxEZ6w2RGd-JX7nrk4_rO51tJXhoSONgmw==',
+   '8NufL3TrLz3_NFgDY37cjg0LTjMPTzGc2jMsOW5GnKbjD5gP1HR4SQT6nDSCgjLtPi15FfGuvGpAQJNd2ckeUA==',
+   '2025-03-13 14:45:48')
+;
