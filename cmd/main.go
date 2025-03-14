@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Stant/ECommerce/domain"
-	"Stant/ECommerce/stores"
+	"Stant/ECommerce/internal"
+	"Stant/ECommerce/internal/stores"
 	"context"
 	"log"
 	"net/http"
@@ -31,10 +31,9 @@ func main() {
 	sessionStore := stores.NewSessionStore(db)
 	defer sessionStore.StopCleanup(sessionStore.StartCleanup(*log.Default(), time.Minute*10))
 
-	loggingMiddleware := LoggingMiddleware(*log.Default())
+	loggingMiddleware := internal.LoggingMiddleware(*log.Default())
 
-	serveMux := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
-
+	serveMux := internal.NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 	server := &http.Server{
 		Addr:    ":8080",
 		Handler: loggingMiddleware(serveMux),
@@ -49,24 +48,4 @@ func main() {
 
 	<-ctx.Done()
 	log.Println("Server stopped listening")
-}
-
-func NewMux(categories domain.CategoryStore,
-	sellers domain.SellerStore,
-	products domain.ProductStore,
-	users domain.UserStore,
-	sessions domain.SessionStore,
-) *http.ServeMux {
-	styles := http.FileServer(http.Dir("views/static"))
-	serveMux := &http.ServeMux{}
-	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
-	serveMux.Handle("/", HandleIndex(categories))
-	serveMux.Handle("/category/{id}", HandleCategory(categories, products))
-	serveMux.Handle("/seller/{id}", HandleSeller(sellers, products))
-	serveMux.Handle("/product/{id}", HandleProduct(products))
-
-	serveMux.Handle("POST /register", HandleRegistration(users))
-	serveMux.Handle("POST /login", HandleLogin(users, sessions))
-
-	return serveMux
 }

@@ -1,9 +1,9 @@
-package main
+package internal
 
 import (
-	"Stant/ECommerce/domain"
-	"Stant/ECommerce/stores"
-	"Stant/ECommerce/views"
+	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/stores"
+	"Stant/ECommerce/internal/views"
 	"bytes"
 	"context"
 	"database/sql"

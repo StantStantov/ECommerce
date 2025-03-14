@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/domain"
+	"Stant/ECommerce/internal/domain"
 	"database/sql"
 	"fmt"
 )

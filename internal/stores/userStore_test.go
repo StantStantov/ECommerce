@@ -1,8 +1,8 @@
 package stores_test
 
 import (
-	"Stant/ECommerce/domain"
-	"Stant/ECommerce/stores"
+	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/stores"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"

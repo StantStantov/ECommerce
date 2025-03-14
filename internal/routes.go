@@ -1,8 +1,8 @@
-package main
+package internal 
 
 import (
-	"Stant/ECommerce/domain"
-	"Stant/ECommerce/views"
+	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/views"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -14,6 +14,26 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
 )
+
+func NewMux(categories domain.CategoryStore,
+	sellers domain.SellerStore,
+	products domain.ProductStore,
+	users domain.UserStore,
+	sessions domain.SessionStore,
+) *http.ServeMux {
+	styles := http.FileServer(http.Dir("views/static"))
+	serveMux := &http.ServeMux{}
+	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
+	serveMux.Handle("/", HandleIndex(categories))
+	serveMux.Handle("/category/{id}", HandleCategory(categories, products))
+	serveMux.Handle("/seller/{id}", HandleSeller(sellers, products))
+	serveMux.Handle("/product/{id}", HandleProduct(products))
+
+	serveMux.Handle("POST /register", HandleRegistration(users))
+	serveMux.Handle("POST /login", HandleLogin(users, sessions))
+
+	return serveMux
+}
 
 func HandleIndex(store domain.CategoryStore) http.Handler {
 	renderer := views.Index
