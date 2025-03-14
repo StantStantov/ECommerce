@@ -33,7 +33,7 @@ func (s SessionStore) Create(sessionToken, csrfToken string, expireOn time.Time)
 
 const readSession = `
   SELECT * FROM sessions
-  WHERE sessionToken = $1
+  WHERE session_token = $1
   LIMIT 1
   ;
 `
@@ -49,8 +49,7 @@ func (s SessionStore) Read(sessionToken string) (domain.Session, error) {
 
 const deleteSessionByToken = `
   DELETE FROM sessions
-  WHERE sessionToken = $1 
-  LIMIT 1
+  WHERE session_token = $1 
   ;
 `
 
@@ -59,18 +58,6 @@ func (s SessionStore) Delete(sessionToken string) error {
 		return fmt.Errorf("SessionStore.Delete: [%w]", err)
 	}
 	return nil
-}
-
-func scanSession(row sqlRow) (domain.Session, error) {
-	var (
-		sessionToken string
-		csrfToken    string
-		expireOn     time.Time
-	)
-	if err := row.Scan(sessionToken, csrfToken, expireOn); err != nil {
-		return domain.Session{}, fmt.Errorf("ScanSession: [%w]", err)
-	}
-	return domain.NewSession(sessionToken, csrfToken, expireOn), nil
 }
 
 const deleteExpiredSessions = `
@@ -84,6 +71,18 @@ func (s SessionStore) DeleteAllExpired() error {
 		return fmt.Errorf("SessionStore.DeleteAllExpired: [%w]", err)
 	}
 	return nil
+}
+
+func scanSession(row sqlRow) (domain.Session, error) {
+	var (
+		sessionToken string
+		csrfToken    string
+		expireOn     time.Time
+	)
+	if err := row.Scan(&sessionToken, &csrfToken, &expireOn); err != nil {
+		return domain.Session{}, fmt.Errorf("ScanSession: [%w]", err)
+	}
+	return domain.NewSession(sessionToken, csrfToken, expireOn), nil
 }
 
 func (s SessionStore) StartCleanup(
