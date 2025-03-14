@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -27,12 +28,15 @@ func main() {
 	categoryStore := stores.NewCategoryStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
+	sessionStore := stores.NewSessionStore(db)
+	defer sessionStore.StopCleanup(sessionStore.StartCleanup(*log.Default(), time.Minute*10))
 
 	loggingMiddleware := LoggingMiddleware(*log.Default())
 
-	serveMux := NewMux(categoryStore, sellerStore, productStore, userStore)
+	serveMux := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 
 	server := &http.Server{
+		Addr:    ":8080",
 		Handler: loggingMiddleware(serveMux),
 	}
 
@@ -51,6 +55,7 @@ func NewMux(categories domain.CategoryStore,
 	sellers domain.SellerStore,
 	products domain.ProductStore,
 	users domain.UserStore,
+	sessions domain.SessionStore,
 ) *http.ServeMux {
 	styles := http.FileServer(http.Dir("views/static"))
 	serveMux := &http.ServeMux{}
@@ -61,7 +66,7 @@ func NewMux(categories domain.CategoryStore,
 	serveMux.Handle("/product/{id}", HandleProduct(products))
 
 	serveMux.Handle("POST /register", HandleRegistration(users))
-	serveMux.Handle("/login", http.HandlerFunc(http.NotFound))
+	serveMux.Handle("POST /login", HandleLogin(users, sessions))
 
 	return serveMux
 }

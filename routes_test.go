@@ -28,7 +28,8 @@ func TestHandlers(t *testing.T) {
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
-	server := NewMux(categoryStore, sellerStore, productStore, userStore)
+	sessionStore := stores.NewSessionStore(db)
+	server := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 
 	t.Run("Test Index", func(t *testing.T) {
 		t.Parallel()
@@ -49,6 +50,10 @@ func TestHandlers(t *testing.T) {
 	t.Run("Test Registration", func(t *testing.T) {
 		t.Parallel()
 		testRegisterHandler(t, server, userStore)
+	})
+	t.Run("Test Login", func(t *testing.T) {
+		t.Parallel()
+		testLoginHandler(t, server)
 	})
 }
 
@@ -86,8 +91,8 @@ func testCategoryHandler(t *testing.T,
 }
 
 func testSellerHandler(t *testing.T, server *http.ServeMux,
-	sellerStore domain.SellerStore,
-	productStore domain.ProductStore,
+	sellers domain.SellerStore,
+	products domain.ProductStore,
 ) {
 	t.Helper()
 
@@ -95,22 +100,22 @@ func testSellerHandler(t *testing.T, server *http.ServeMux,
 	server.ServeHTTP(got, newGetRequest(t, "/seller/1", nil))
 
 	want := httptest.NewRecorder()
-	wantSeller, _ := sellerStore.Read(1)
-	wantProduct, _ := productStore.ReadAllByFilter(0, 1)
+	wantSeller, _ := sellers.Read(1)
+	wantProduct, _ := products.ReadAllByFilter(0, 1)
 	views.Seller(wantSeller.Name(), wantProduct).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
-func testProductHandler(t *testing.T, server *http.ServeMux, store domain.ProductStore) {
+func testProductHandler(t *testing.T, server *http.ServeMux, products domain.ProductStore) {
 	t.Helper()
 
 	got := httptest.NewRecorder()
 	server.ServeHTTP(got, newGetRequest(t, "/product/1", nil))
 
 	want := httptest.NewRecorder()
-	wantProduct, _ := store.Read(1)
+	wantProduct, _ := products.Read(1)
 	views.Product(wantProduct).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
@@ -134,6 +139,23 @@ func testRegisterHandler(t *testing.T, server *http.ServeMux, users domain.UserS
 	}
 }
 
+func testLoginHandler(t *testing.T, server *http.ServeMux) {
+	t.Helper()
+
+	email := "readME@test.com"
+	password := "12345"
+	content := fmt.Sprintf("email=%s&password=%s", email, password)
+	body := strings.NewReader(content)
+	got := httptest.NewRecorder()
+	server.ServeHTTP(got, newPostRequest(t, "/login", body))
+
+	checkResponseStatus(t, got.Code, http.StatusFound)
+	cookies := got.Result().Cookies()
+	if len(cookies) != 2 {
+		t.Fatalf("Did not get correct Cookies amount: got: %v, want: %v", len(cookies), 2)
+	}
+}
+
 func BenchmarkHandlers(t *testing.B) {
 	db, err := sql.Open("pgx", os.Getenv("TEST_DATABASE_URL"))
 	if err != nil || db.Ping() != nil {
@@ -144,7 +166,8 @@ func BenchmarkHandlers(t *testing.B) {
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
-	server := NewMux(categoryStore, sellerStore, productStore, userStore)
+	sessionStore := stores.NewSessionStore(db)
+	server := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 
 	t.Run("Index", func(t *testing.B) {
 		benchmarkIndex(t, server)

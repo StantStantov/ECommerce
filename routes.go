@@ -3,9 +3,13 @@ package main
 import (
 	"Stant/ECommerce/domain"
 	"Stant/ECommerce/views"
+	"crypto/rand"
+	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
@@ -187,4 +191,63 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 			return
 		},
 	)
+}
+
+func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if err := r.ParseForm(); err != nil {
+				log.Printf("Register Handler: %v", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			email := r.FormValue("email")
+			password := r.FormValue("password")
+
+			user, err := users.ReadByEmail(email)
+			if err != nil {
+				log.Printf("Register Handler: [%v]", err)
+				http.Error(w, "Failed to get User info by Email", http.StatusInternalServerError)
+				return
+			}
+			if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword()), []byte(password)); err != nil {
+				http.Error(w, "Password is incorrect", http.StatusConflict)
+				return
+			}
+
+			expireOn := time.Now().Add(1 * time.Hour)
+			sessionToken, err := generateToken(64)
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_token",
+				Value:    sessionToken,
+				Expires:  expireOn,
+				HttpOnly: true,
+			})
+			csrfToken, err := generateToken(64)
+			http.SetCookie(w, &http.Cookie{
+				Name:     "csrf_token",
+				Value:    csrfToken,
+				Expires:  expireOn,
+				HttpOnly: false,
+			})
+
+			if err := sessions.Create(sessionToken, csrfToken, expireOn); err != nil {
+				log.Printf("Register Handler: [%v]", err)
+				http.Error(w, "Failed to store session", http.StatusInternalServerError)
+				return
+			}
+
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		},
+	)
+}
+
+func generateToken(length int) (string, error) {
+	token := make([]byte, length)
+	if _, err := rand.Read(token); err != nil {
+		return "", fmt.Errorf("generateToken: [%w]", err)
+	}
+	return base64.URLEncoding.EncodeToString(token), nil
 }
