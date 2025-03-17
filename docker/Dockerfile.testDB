@@ -1,7 +1,7 @@
 FROM postgres AS runtime_init
 
-COPY ./build/sql/schema.sql /docker-entrypoint-initdb.d/001-schema.sql
-COPY ./build/sql/insert_data.sql /docker-entrypoint-initdb.d/002-insert.sql
+COPY ./docker/sql/schema.sql /docker-entrypoint-initdb.d/001-schema.sql
+COPY ./docker/sql/insert_data.sql /docker-entrypoint-initdb.d/002-insert.sql
 
 FROM runtime_init AS buildtime_init_builder
 RUN echo "exit 0" > /docker-entrypoint-initdb.d/100-exit_before_boot.sh

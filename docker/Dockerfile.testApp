@@ -1,7 +1,5 @@
 FROM golang:latest
 
-ENV GO_CMD="go test ./... --count=1"
-
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -10,4 +8,4 @@ RUN go mod download -x
 COPY . .
 ENV GOCACHE=/root/.cache/go-build
 RUN --mount=type=cache,target=/root/.cache/go-build \
-    go build -v -o /app
+    go build -C ./cmd -v -o marketServer

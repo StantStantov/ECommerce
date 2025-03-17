@@ -3,40 +3,34 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    image: MarketTest/market_app
     build: 
       context: ..
-      dockerfile: ./build/Dockerfile.testApp
-    command: ${CMD? CMD not set}
-    container_name: theCompanyMarketTest
-    hostname: theCompanyMarketTest
+      dockerfile: ./docker/Dockerfile.testApp
+    hostname: MarketTestApp
     networks:
       - ecommerce_default
-    ports:
-      - 5050:80
     environment:
       POSTGRES_USER: ${POSTGRES_USER? User not set}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD? Password not set} 
-      POSTGRES_HOST: ${POSTGRES_HOST:-theCompanyMarketTestDB}
+      POSTGRES_HOST: ${POSTGRES_HOST:-MarketTestDB}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_DB: ${POSTGRES_DB:-testDB} 
 
-
   db:
+    image: MarketTest/market_db
     build: 
       context: ..
-      dockerfile: ./build/Dockerfile.testDB
+      dockerfile: ./docker/Dockerfile.testDB
       secrets:
         - "ps_user"
         - "ps_password"
         - "ps_db"
     env_file: ./.env.test
     command: -c fsync=off
-    container_name: theCompanyMarketTestDB
-    hostname: theCompanyMarketTestDB
+    hostname: MarketTestDB
     networks:
       - ecommerce_default
-    ports:
-      - 5432:5432
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -U admin -d testDB"]
       interval: 1s
