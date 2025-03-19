@@ -5,8 +5,8 @@ services:
         condition: service_healthy
     image: MarketTest/market_app
     build: 
-      context: ..
-      dockerfile: ./docker/Dockerfile.testApp
+      context: ../..
+      dockerfile: ./build/test/Dockerfile.testApp
     hostname: MarketTestApp
     networks:
       - ecommerce_default
@@ -20,8 +20,8 @@ services:
   db:
     image: MarketTest/market_db
     build: 
-      context: ..
-      dockerfile: ./docker/Dockerfile.testDB
+      context: ../..
+      dockerfile: ./build/test/Dockerfile.testDB
       secrets:
         - "ps_user"
         - "ps_password"
