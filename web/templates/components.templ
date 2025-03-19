@@ -1,5 +1,13 @@
 package templates
 
+type buttonType string
+
+const (
+  buttonRed buttonType = "red"
+  buttonGreen buttonType = "green"
+  buttonBlue buttonType = "blue"
+)
+
 templ head() {
 	<!DOCTYPE html>
 	<head>
@@ -21,4 +29,10 @@ templ footer() {
 	<footer>
 		<p>© 2025 TheCompany</p>
 	</footer>
+}
+
+templ button(buttonType buttonType, text string) {
+	<button class={"btn", string(buttonType)}>
+		{ text }
+	</button>
 }
