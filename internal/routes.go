@@ -2,7 +2,7 @@ package internal
 
 import (
 	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/internal/views"
+	"Stant/ECommerce/web"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -36,7 +36,7 @@ func NewMux(categories domain.CategoryStore,
 }
 
 func HandleIndex(store domain.CategoryStore) http.Handler {
-	renderer := views.Index
+	renderer := templates.Index
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			categories, err := store.ReadAll()
@@ -53,7 +53,7 @@ func HandleIndex(store domain.CategoryStore) http.Handler {
 }
 
 func HandleCategory(categoryStore domain.CategoryStore, productStore domain.ProductStore) http.Handler {
-	renderer := views.Category
+	renderer := templates.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
@@ -100,7 +100,7 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 }
 
 func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductStore) http.Handler {
-	renderer := views.Seller
+	renderer := templates.Seller
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
@@ -147,7 +147,7 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 }
 
 func HandleProduct(store domain.ProductStore) http.Handler {
-	renderer := views.Product
+	renderer := templates.Product
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))

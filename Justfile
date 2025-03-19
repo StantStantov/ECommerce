@@ -6,7 +6,7 @@ build:
 
 templ:
 	templ generate
-	mv internal/views/templates/*.go internal/views/
+	mv web/templates/*.go web/
 
 TEST_ENV_FILE := "./build/test/.env.test"
 TEST_DOCKER_COMPOSE := "./build/test/docker-compose.test.yml"

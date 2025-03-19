@@ -3,7 +3,7 @@ package internal
 import (
 	"Stant/ECommerce/internal/domain"
 	"Stant/ECommerce/internal/stores"
-	"Stant/ECommerce/internal/views"
+	"Stant/ECommerce/web"
 	"bytes"
 	"context"
 	"database/sql"
@@ -65,7 +65,7 @@ func testIndexHandler(t *testing.T, server *http.ServeMux, categories domain.Cat
 
 	want := httptest.NewRecorder()
 	wantCategories, _ := categories.ReadAll()
-	views.Index(wantCategories).Render(context.Background(), want)
+	templates.Index(wantCategories).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
@@ -84,7 +84,7 @@ func testCategoryHandler(t *testing.T,
 	want := httptest.NewRecorder()
 	wantCategory, _ := categories.Read(1)
 	wantProducts, _ := products.ReadAllByFilter(1, 0)
-	views.Category(wantCategory.Name(), wantProducts).Render(context.Background(), want)
+	templates.Category(wantCategory.Name(), wantProducts).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
@@ -102,7 +102,7 @@ func testSellerHandler(t *testing.T, server *http.ServeMux,
 	want := httptest.NewRecorder()
 	wantSeller, _ := sellers.Read(1)
 	wantProduct, _ := products.ReadAllByFilter(0, 1)
-	views.Seller(wantSeller.Name(), wantProduct).Render(context.Background(), want)
+	templates.Seller(wantSeller.Name(), wantProduct).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
@@ -116,7 +116,7 @@ func testProductHandler(t *testing.T, server *http.ServeMux, products domain.Pro
 
 	want := httptest.NewRecorder()
 	wantProduct, _ := products.Read(1)
-	views.Product(wantProduct).Render(context.Background(), want)
+	templates.Product(wantProduct).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)
