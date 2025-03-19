@@ -1,8 +1,8 @@
-package internal 
+package internal
 
 import (
 	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/web"
+	templates "Stant/ECommerce/web"
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
@@ -21,7 +21,7 @@ func NewMux(categories domain.CategoryStore,
 	users domain.UserStore,
 	sessions domain.SessionStore,
 ) *http.ServeMux {
-	styles := http.FileServer(http.Dir("views/static"))
+	styles := http.FileServer(http.Dir("web/static"))
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
 	serveMux.Handle("/", HandleIndex(categories))
@@ -29,7 +29,9 @@ func NewMux(categories domain.CategoryStore,
 	serveMux.Handle("/seller/{id}", HandleSeller(sellers, products))
 	serveMux.Handle("/product/{id}", HandleProduct(products))
 
+	serveMux.Handle("GET /register", HandleRegistrationPage())
 	serveMux.Handle("POST /register", HandleRegistration(users))
+	serveMux.Handle("GET /login", HandleLoginPage())
 	serveMux.Handle("POST /login", HandleLogin(users, sessions))
 
 	return serveMux
@@ -170,6 +172,16 @@ func HandleProduct(store domain.ProductStore) http.Handler {
 	)
 }
 
+func HandleRegistrationPage() http.Handler {
+	renderer := templates.Registration()
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			renderer.Render(r.Context(), w)
+		},
+	)
+}
+
 func HandleRegistration(users domain.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -209,6 +221,16 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
+		},
+	)
+}
+
+func HandleLoginPage() http.Handler {
+	renderer := templates.Login()
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			renderer.Render(r.Context(), w)
 		},
 	)
 }
