@@ -43,7 +43,7 @@ func HandleIndex(store domain.CategoryStore) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			categories, err := store.ReadAll()
 			if err != nil {
-				log.Printf("Category Handler: %s", err)
+				log.Printf("internal.HandleIndex: [%v]", err)
 				http.NotFound(w, r)
 				return
 			}
@@ -60,8 +60,8 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
 			if err != nil {
-				log.Printf("Category Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleCategory: [%v]", err)
+				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
 				return
 			}
 
@@ -90,8 +90,8 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 			category := <-categoryChan
 			products := <-productsChan
 			if err := eg.Wait(); err != nil {
-				log.Printf("Category Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleCategory: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
@@ -107,8 +107,8 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
 			if err != nil {
-				log.Printf("Seller Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleSeller: [%v]", err)
+				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
 				return
 			}
 
@@ -137,8 +137,8 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 			seller := <-sellerChan
 			products := <-productsChan
 			if err := eg.Wait(); err != nil {
-				log.Printf("Seller Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleSeller: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
@@ -154,15 +154,15 @@ func HandleProduct(store domain.ProductStore) http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
 			if err != nil {
-				log.Printf("Product Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleProduct: [%v]", err)
+				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
 				return
 			}
 
 			product, err := store.Read(id)
 			if err != nil {
-				log.Printf("Product Handler: %s", err)
-				http.NotFound(w, r)
+				log.Printf("internal.HandleProduct: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
@@ -186,8 +186,8 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if err := r.ParseForm(); err != nil {
-				log.Printf("Register Handler: %s", err)
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				log.Printf("internal.HandleRegistration: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
@@ -198,15 +198,15 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 
 			hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 			if err != nil {
-				log.Printf("Register Handler: %s", err)
-				http.Error(w, "Fail to hash password", http.StatusInternalServerError)
+				log.Printf("internal.HandleRegistration: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
 			exists, err := users.IsExists(email)
 			if err != nil {
-				log.Printf("Register Handler: %s", err)
-				http.Error(w, "SQL Error", http.StatusInternalServerError)
+				log.Printf("internal.HandleRegistration: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 			if exists {
@@ -214,8 +214,8 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 				return
 			}
 			if err := users.Create(email, firstName, secondName, string(hash)); err != nil {
-				log.Printf("Register Handler: %s", err)
-				http.Error(w, "SQL Error", http.StatusInternalServerError)
+				log.Printf("internal.HandleRegistration: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
@@ -239,7 +239,7 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if err := r.ParseForm(); err != nil {
-				log.Printf("Register Handler: %v", err)
+				log.Printf("internal.HandleLogin: [%v]", err)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -249,8 +249,8 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 
 			user, err := users.ReadByEmail(email)
 			if err != nil {
-				log.Printf("Register Handler: [%v]", err)
-				http.Error(w, "Failed to get User info by Email", http.StatusInternalServerError)
+				log.Printf("internal.HandleLogin: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 			if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword()), []byte(password)); err != nil {
@@ -275,8 +275,8 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 			})
 
 			if err := sessions.Create(sessionToken, csrfToken, expireOn); err != nil {
-				log.Printf("Register Handler: [%v]", err)
-				http.Error(w, "Failed to store session", http.StatusInternalServerError)
+				log.Printf("internal.HandleLogin: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 

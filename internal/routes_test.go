@@ -3,7 +3,7 @@ package internal
 import (
 	"Stant/ECommerce/internal/domain"
 	"Stant/ECommerce/internal/stores"
-	"Stant/ECommerce/web"
+	templates "Stant/ECommerce/web"
 	"bytes"
 	"context"
 	"database/sql"
@@ -20,8 +20,8 @@ import (
 
 func TestHandlers(t *testing.T) {
 	db, err := stores.NewDBConn()
-	if err != nil || db.Ping() != nil {
-		t.Fatalf("Database: %s\n", err)
+	if err != nil {
+		t.Fatalf("Main: [%v]\n", err)
 	}
 
 	categoryStore := stores.NewCategoryStore(db)
