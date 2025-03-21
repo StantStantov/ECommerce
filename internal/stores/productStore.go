@@ -22,14 +22,14 @@ const getProduct = `
   WHERE p.product_id = $1
   LIMIT 1
   ;
-  `
+`
 
 func (st ProductStore) Read(id int) (domain.Product, error) {
 	row := st.db.QueryRow(getProduct, id)
 
 	product, err := scanProduct(row)
 	if err != nil {
-		return domain.Product{}, fmt.Errorf("ProductStore Read: %v", err)
+		return product, fmt.Errorf("stores.ProductStore.Read: [%w]", err)
 	}
 	return product, nil
 }
@@ -40,7 +40,7 @@ const getProducts = `
   JOIN categories c ON p.category_id = c.category_id
   JOIN sellers s ON p.seller_id = s.seller_id
   ;
-  `
+`
 
 func (st ProductStore) ReadAll() ([]domain.Product, error) {
 	rows, err := st.db.Query(getProducts)
@@ -53,7 +53,7 @@ func (st ProductStore) ReadAll() ([]domain.Product, error) {
 	for rows.Next() {
 		product, err := scanProduct(rows)
 		if err != nil {
-			return nil, fmt.Errorf("ProductStore ReadAll: %v", err)
+			return nil, fmt.Errorf("stores.ProductStore.ReadAll: [%w]", err)
 		}
 		products = append(products, product)
 	}
@@ -69,7 +69,7 @@ const getProductsByFilter = `
     (c.category_id = $1 OR NULLIF($1, 0) IS NULL)
     AND (s.seller_id = $2 OR NULLIF($2, 0) IS NULL)
   ;
-  `
+`
 
 func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.Product, error) {
 	rows, err := st.db.Query(getProductsByFilter, categoryID, sellerID)
@@ -82,7 +82,7 @@ func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.P
 	for rows.Next() {
 		product, err := scanProduct(rows)
 		if err != nil {
-			return nil, fmt.Errorf("ProductStore ReadAllByFilter: %v", err)
+			return nil, fmt.Errorf("stores.ProductStore.ReadAllByFilter: [%w]", err)
 		}
 		products = append(products, product)
 	}
@@ -90,15 +90,23 @@ func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.P
 }
 
 func scanProduct(row sqlRow) (domain.Product, error) {
-	var productID int32
-	var name string
-	var sellerID int32
-	var sellerName string
-	var categoryID int32
-	var categoryName string
-	var price float64
+	var (
+		productID    int32
+		name         string
+		sellerID     int32
+		sellerName   string
+		categoryID   int32
+		categoryName string
+		price        float64
+	)
 	if err := row.Scan(&productID, &name, &sellerID, &sellerName, &categoryID, &categoryName, &price); err != nil {
-		return domain.Product{}, err
+		return domain.Product{}, fmt.Errorf("stores.scanProduct: [%w]", err)
 	}
-	return domain.NewProduct(productID, name, domain.NewSeller(sellerID, sellerName), domain.NewCategory(categoryID, categoryName), price), nil
+	return domain.NewProduct(
+			productID,
+			name,
+			domain.NewSeller(sellerID, sellerName),
+			domain.NewCategory(categoryID, categoryName),
+			price),
+		nil
 }

@@ -25,7 +25,7 @@ const createUser = `
 func (s UserStore) Create(email, fisrtName, secondName, password string) error {
 	_, err := s.db.Exec(createUser, email, fisrtName, secondName, password)
 	if err != nil {
-		return fmt.Errorf("UserStore.Create: [%w]", err)
+		return fmt.Errorf("stores.UserStore.Create: [%w]", err)
 	}
 	return nil
 }
@@ -39,11 +39,10 @@ const checkUser = `
 `
 
 func (s UserStore) IsExists(email string) (bool, error) {
-	isExists := false
+	var isExists bool
 	row := s.db.QueryRow(checkUser, email)
-
 	if err := row.Scan(&isExists); err != nil {
-		return false, fmt.Errorf("UserStore.IsExists: [%w]", err)
+		return false, fmt.Errorf("stores.UserStore.IsExists: [%w]", err)
 	}
 
 	return isExists, nil
@@ -60,7 +59,7 @@ func (s UserStore) Read(id int32) (domain.User, error) {
 	row := s.db.QueryRow(getUserByID, id)
 	user, err := scanUser(row)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("UserStore.Read: [%w]", err)
+		return user, fmt.Errorf("stores.UserStore.Read: [%w]", err)
 	}
 	return user, nil
 }
@@ -76,7 +75,7 @@ func (s UserStore) ReadByEmail(email string) (domain.User, error) {
 	row := s.db.QueryRow(getUserByEmail, email)
 	user, err := scanUser(row)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("UserStore.ReadByEmail: [%w]", err)
+		return user, fmt.Errorf("stores.UserStore.ReadByEmail: [%w]", err)
 	}
 	return user, nil
 }
@@ -90,7 +89,7 @@ func scanUser(row sqlRow) (domain.User, error) {
 		hashedPassword string
 	)
 	if err := row.Scan(&id, &email, &firstName, &secondName, &hashedPassword); err != nil {
-		return domain.User{}, fmt.Errorf("scanUser: [%w]", err)
+		return domain.User{}, fmt.Errorf("stores.scanUser: [%w]", err)
 	}
 	return domain.NewUser(id, email, firstName, secondName, hashedPassword), nil
 }

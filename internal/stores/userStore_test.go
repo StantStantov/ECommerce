@@ -75,7 +75,7 @@ func testUserRead(t *testing.T, store domain.UserStore) {
 	firstName := "read"
 	secondName := "ME"
 	hashedPassword := "$2a$10$sgEy3LehHNpbZ7NjqDhMiejJ8gaQTcykfv1VFJL42aPN8pZJL45EW"
-	want := domain.NewUser(0, email, firstName, secondName, hashedPassword)
+	want := domain.NewUser(1, email, firstName, secondName, hashedPassword)
 
 	checkUser(t, got, want)
 }

@@ -26,7 +26,7 @@ const createSession = `
 
 func (s SessionStore) Create(sessionToken, csrfToken string, expireOn time.Time) error {
 	if _, err := s.db.Exec(createSession, sessionToken, csrfToken, expireOn); err != nil {
-		return fmt.Errorf("SessionStore.Create: [%w]", err)
+		return fmt.Errorf("stores.SessionStore.Create: [%w]", err)
 	}
 	return nil
 }
@@ -42,7 +42,7 @@ func (s SessionStore) Read(sessionToken string) (domain.Session, error) {
 	row := s.db.QueryRow(readSession, sessionToken)
 	session, err := scanSession(row)
 	if err != nil {
-		return session, fmt.Errorf("SessionStore.Read: [%w]", err)
+		return session, fmt.Errorf("stores.SessionStore.Read: [%w]", err)
 	}
 	return session, nil
 }
@@ -55,7 +55,7 @@ const deleteSessionByToken = `
 
 func (s SessionStore) Delete(sessionToken string) error {
 	if _, err := s.db.Exec(deleteSessionByToken, sessionToken); err != nil {
-		return fmt.Errorf("SessionStore.Delete: [%w]", err)
+		return fmt.Errorf("stores.SessionStore.Delete: [%w]", err)
 	}
 	return nil
 }
@@ -68,7 +68,7 @@ const deleteExpiredSessions = `
 
 func (s SessionStore) DeleteAllExpired() error {
 	if _, err := s.db.Exec(deleteExpiredSessions); err != nil {
-		return fmt.Errorf("SessionStore.DeleteAllExpired: [%w]", err)
+		return fmt.Errorf("stores.SessionStore.DeleteAllExpired: [%w]", err)
 	}
 	return nil
 }
@@ -80,7 +80,7 @@ func scanSession(row sqlRow) (domain.Session, error) {
 		expireOn     time.Time
 	)
 	if err := row.Scan(&sessionToken, &csrfToken, &expireOn); err != nil {
-		return domain.Session{}, fmt.Errorf("ScanSession: [%w]", err)
+		return domain.Session{}, fmt.Errorf("stores.scanSession: [%w]", err)
 	}
 	return domain.NewSession(sessionToken, csrfToken, expireOn), nil
 }
@@ -115,7 +115,7 @@ func (s SessionStore) clean(
 			return
 		case <-ticker.C:
 			if err := s.DeleteAllExpired(); err != nil {
-				logger.Printf("Error = %v", fmt.Errorf("SessionStore.clean: [%w]", err))
+				logger.Printf("Error = %v", fmt.Errorf("stores.SessionStore.clean: [%w]", err))
 			}
 		}
 	}

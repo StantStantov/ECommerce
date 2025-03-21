@@ -3,6 +3,7 @@ package stores
 import (
 	"Stant/ECommerce/internal/domain"
 	"database/sql"
+	"fmt"
 )
 
 type CategoryStore struct {
@@ -16,15 +17,16 @@ func NewCategoryStore(db *sql.DB) *CategoryStore {
 const getCategory = `
   SELECT * 
   FROM categories 
-  WHERE category_id = $1 LIMIT 1
+  WHERE category_id = $1 
+  LIMIT 1
   ;
-  `
+`
 
 func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 	row := st.db.QueryRow(getCategory, categoryID)
 	category, err := scanCategory(row)
 	if err != nil {
-		return category, err
+		return category, fmt.Errorf("stores.CategoryStore.Read: [%w]", err)
 	}
 	return category, nil
 }
@@ -33,7 +35,7 @@ const getCategories = `
   SELECT * 
   FROM categories
   ;
-  `
+`
 
 func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 	rows, err := st.db.Query(getCategories)
@@ -46,7 +48,7 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 	for rows.Next() {
 		category, err := scanCategory(rows)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("stores.CategoryStore.ReadAll: [%w]", err)
 		}
 		categories = append(categories, category)
 	}
@@ -54,10 +56,12 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 }
 
 func scanCategory(row sqlRow) (domain.Category, error) {
-	var id int32
-	var name string
+	var (
+		id   int32
+		name string
+	)
 	if err := row.Scan(&id, &name); err != nil {
-		return domain.Category{}, err
+		return domain.Category{}, fmt.Errorf("stores.scanCategory: [%w]", err)
 	}
 	return domain.NewCategory(id, name), nil
 }
