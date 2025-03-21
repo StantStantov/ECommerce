@@ -2,10 +2,8 @@ package stores_test
 
 import (
 	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/security"
 	"Stant/ECommerce/internal/stores"
-	"crypto/rand"
-	"encoding/base64"
-	"fmt"
 	"testing"
 	"time"
 )
@@ -35,17 +33,17 @@ func TestSessionStore(t *testing.T) {
 func testSessionCreate(t *testing.T, store domain.SessionStore) {
 	t.Helper()
 
-	sessionToken, err := generateToken(64)
+	sessionCookie, err := security.NewSessionCookie()
 	if err != nil {
-		t.Errorf("Failed to create sessionToken: [%v]", err)
+		t.Errorf("Failed to create Session Cookie: [%v]", err)
 	}
-	csrfToken, err := generateToken(64)
+	csrfCookie, err := security.NewCsrfCookie()
 	if err != nil {
-		t.Errorf("Failed to create csrfToken: [%v]", err)
+		t.Errorf("Failed to create CSRF Cookie: [%v]", err)
 	}
 	expireOn := time.Now()
 
-	if err := store.Create(sessionToken, csrfToken, expireOn); err != nil {
+	if err := store.Create(sessionCookie.Value, csrfCookie.Value, expireOn); err != nil {
 		t.Fatalf("Failed to create session in DB: [%v]", err)
 	}
 }
@@ -89,12 +87,4 @@ func checkSession(t *testing.T, got, want domain.Session) {
 	if got.ExpireOn() != want.ExpireOn() {
 		t.Errorf("Incorrect Expiration Date: got %v, want %v", got.ExpireOn(), want.ExpireOn())
 	}
-}
-
-func generateToken(length int) (string, error) {
-	token := make([]byte, length)
-	if _, err := rand.Read(token); err != nil {
-		return "", fmt.Errorf("generateToken: [%w]", err)
-	}
-	return base64.URLEncoding.EncodeToString(token), nil
 }

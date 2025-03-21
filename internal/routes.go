@@ -2,16 +2,13 @@ package internal
 
 import (
 	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/security"
 	templates "Stant/ECommerce/web"
-	"crypto/rand"
-	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -196,23 +193,24 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 			secondName := r.FormValue("secondName")
 			password := r.FormValue("password")
 
-			hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+			exist, err := users.IsExists(email)
+			if err != nil {
+				log.Printf("internal.HandleRegistration: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
+			}
+			if exist {
+				http.Error(w, "User already exists", http.StatusConflict)
+				return
+			}
+
+			hash, err := security.HashPassword(password)
 			if err != nil {
 				log.Printf("internal.HandleRegistration: [%v]", err)
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
-			exists, err := users.IsExists(email)
-			if err != nil {
-				log.Printf("internal.HandleRegistration: [%v]", err)
-				http.Error(w, "Internal Error", http.StatusInternalServerError)
-				return
-			}
-			if exists {
-				http.Error(w, "User already exists", http.StatusConflict)
-				return
-			}
 			if err := users.Create(email, firstName, secondName, string(hash)); err != nil {
 				log.Printf("internal.HandleRegistration: [%v]", err)
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
@@ -253,43 +251,36 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
-			if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword()), []byte(password)); err != nil {
+			if !security.IsCorrectPassword(password, user.HashedPassword()) {
 				http.Error(w, "Password is incorrect", http.StatusConflict)
 				return
 			}
 
 			expireOn := time.Now().Add(1 * time.Hour)
-			sessionToken, err := generateToken(64)
-			http.SetCookie(w, &http.Cookie{
-				Name:     "session_token",
-				Value:    sessionToken,
-				Expires:  expireOn,
-				HttpOnly: true,
-			})
-			csrfToken, err := generateToken(64)
-			http.SetCookie(w, &http.Cookie{
-				Name:     "csrf_token",
-				Value:    csrfToken,
-				Expires:  expireOn,
-				HttpOnly: false,
-			})
-
-			if err := sessions.Create(sessionToken, csrfToken, expireOn); err != nil {
+			sessionCookie, err := security.NewSessionCookie()
+			if err != nil {
+				log.Printf("internal.HandleLogin: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
+			}
+			csrfCookie, err := security.NewCsrfCookie()
+			if err != nil {
 				log.Printf("internal.HandleLogin: [%v]", err)
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
 			}
 
+			if err := sessions.Create(sessionCookie.Value, csrfCookie.Value, expireOn); err != nil {
+				log.Printf("internal.HandleLogin: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
+			}
+
+			http.SetCookie(w, sessionCookie)
+			http.SetCookie(w, csrfCookie)
+
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		},
 	)
-}
-
-func generateToken(length int) (string, error) {
-	token := make([]byte, length)
-	if _, err := rand.Read(token); err != nil {
-		return "", fmt.Errorf("generateToken: [%w]", err)
-	}
-	return base64.URLEncoding.EncodeToString(token), nil
 }
