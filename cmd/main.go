@@ -20,7 +20,7 @@ func main() {
 
 	db, err := stores.NewDBConn()
 	if err != nil {
-		log.Fatalf("Database: %s\n", err)
+		log.Fatalf("Main: [%v]\n", err)
 	}
 
 	defer db.Close()
@@ -28,7 +28,7 @@ func main() {
 	categoryStore := stores.NewCategoryStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
-	sessionStore := stores.NewSessionStore(db)
+	sessionStore := stores.NewSessionStore(db, time.Now().Add(1*time.Hour))
 	defer sessionStore.StopCleanup(sessionStore.StartCleanup(*log.Default(), time.Minute*10))
 
 	loggingMiddleware := internal.LoggingMiddleware(*log.Default())
@@ -42,7 +42,7 @@ func main() {
 	go func() {
 		log.Println("Server started listening")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Listen: %s\n", err)
+			log.Fatalf("Main: [%v]\n", err)
 		}
 	}()
 
