@@ -11,8 +11,8 @@ CREATE TABLE categories (
 CREATE TABLE products (
   product_id SERIAL PRIMARY KEY,
   product_name TEXT NOT NULL,
-  seller_id SERIAL REFERENCES sellers ON DELETE CASCADE, 
-  category_id SERIAL REFERENCES categories ON DELETE CASCADE,
+  seller_id SERIAL REFERENCES sellers(seller_id) ON DELETE CASCADE, 
+  category_id SERIAL REFERENCES categories(category_id) ON DELETE CASCADE,
   product_price NUMERIC(10, 2) NOT NULL,
   CHECK (product_price > 0)
 );
@@ -26,7 +26,9 @@ CREATE TABLE users (
 );
 
 CREATE TABLE sessions (
+  user_id SERIAL REFERENCES users(id) ON DELETE CASCADE,
   session_token TEXT PRIMARY KEY,
   csrf_token TEXT UNIQUE NOT NULL,
   expire_on TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
