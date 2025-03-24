@@ -29,7 +29,7 @@ type UserStore interface {
 }
 
 type SessionStore interface {
-	Create(sessionToken, csrfToken string, expireOn time.Time) error
+	Create(userID int32, sessionToken, csrfToken string) error
 	Read(sessionToken string) (Session, error)
 	Delete(sessionToken string) error
 	DeleteAllExpired() error

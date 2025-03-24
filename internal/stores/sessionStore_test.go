@@ -14,7 +14,7 @@ func TestSessionStore(t *testing.T) {
 		t.Skipf("Failed to connect to DB: [%v]", err)
 	}
 
-	store := stores.NewSessionStore(db)
+	store := stores.NewSessionStore(db, time.Now().Add(1*time.Hour))
 
 	t.Run("Test Create", func(t *testing.T) {
 		t.Parallel()
@@ -41,9 +41,8 @@ func testSessionCreate(t *testing.T, store domain.SessionStore) {
 	if err != nil {
 		t.Errorf("Failed to create CSRF Cookie: [%v]", err)
 	}
-	expireOn := time.Now()
 
-	if err := store.Create(sessionCookie.Value, csrfCookie.Value, expireOn); err != nil {
+	if err := store.Create(3, sessionCookie.Value, csrfCookie.Value); err != nil {
 		t.Fatalf("Failed to create session in DB: [%v]", err)
 	}
 }
@@ -51,6 +50,7 @@ func testSessionCreate(t *testing.T, store domain.SessionStore) {
 func testSessionRead(t *testing.T, store domain.SessionStore) {
 	t.Helper()
 
+	userID := int32(1)
 	sessionToken := "2-bJbG-BU5h1fKovzqoEnwOxDsz9bm1-8vVRHYav5Z29DcaDUchc0LNufSGCEjKFsXGNtn0ZF0FdcXi9_npSGg=="
 	csrfToken := "DpwoY8fzNfVyBnJDl9mEclJoZcWW8kxtZIo-CdMMvGnGfwzrrqwogUyVnUZknwazD_MXxEop5ewgxp2S-wTtig=="
 	expireOn := time.Date(2025, 3, 13, 14, 33, 57, 0, time.Now().Location())
@@ -60,7 +60,7 @@ func testSessionRead(t *testing.T, store domain.SessionStore) {
 		t.Fatalf("Failed to read session from DB: [%v]", err)
 	}
 
-	want := domain.NewSession(sessionToken, csrfToken, expireOn)
+	want := domain.NewSession(userID, sessionToken, csrfToken, expireOn)
 
 	checkSession(t, got, want)
 }

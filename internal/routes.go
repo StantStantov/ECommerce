@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -256,7 +255,6 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 				return
 			}
 
-			expireOn := time.Now().Add(1 * time.Hour)
 			sessionCookie, err := security.NewSessionCookie()
 			if err != nil {
 				log.Printf("internal.HandleLogin: [%v]", err)
@@ -270,7 +268,7 @@ func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Hand
 				return
 			}
 
-			if err := sessions.Create(sessionCookie.Value, csrfCookie.Value, expireOn); err != nil {
+			if err := sessions.Create(user.ID(), sessionCookie.Value, csrfCookie.Value); err != nil {
 				log.Printf("internal.HandleLogin: [%v]", err)
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return

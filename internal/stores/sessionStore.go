@@ -9,23 +9,24 @@ import (
 )
 
 type SessionStore struct {
-	db *sql.DB
+	db              *sql.DB
+	sessionLifetime time.Time
 }
 
-func NewSessionStore(db *sql.DB) *SessionStore {
-	return &SessionStore{db: db}
+func NewSessionStore(db *sql.DB, sessionLifetime time.Time) *SessionStore {
+	return &SessionStore{db: db, sessionLifetime: sessionLifetime}
 }
 
 const createSession = `
   INSERT INTO sessions
-  (session_token, csrf_token, expire_on)
+  (user_id, session_token, csrf_token, expire_on)
   VALUES
-  ($1, $2, $3)
+  ($1, $2, $3, $4)
   ;
 `
 
-func (s SessionStore) Create(sessionToken, csrfToken string, expireOn time.Time) error {
-	if _, err := s.db.Exec(createSession, sessionToken, csrfToken, expireOn); err != nil {
+func (s SessionStore) Create(userID int32, sessionToken, csrfToken string) error {
+	if _, err := s.db.Exec(createSession, userID, sessionToken, csrfToken, s.sessionLifetime); err != nil {
 		return fmt.Errorf("stores.SessionStore.Create: [%w]", err)
 	}
 	return nil
@@ -75,14 +76,15 @@ func (s SessionStore) DeleteAllExpired() error {
 
 func scanSession(row sqlRow) (domain.Session, error) {
 	var (
+		userID       int32
 		sessionToken string
 		csrfToken    string
 		expireOn     time.Time
 	)
-	if err := row.Scan(&sessionToken, &csrfToken, &expireOn); err != nil {
+	if err := row.Scan(&userID, &sessionToken, &csrfToken, &expireOn); err != nil {
 		return domain.Session{}, fmt.Errorf("stores.scanSession: [%w]", err)
 	}
-	return domain.NewSession(sessionToken, csrfToken, expireOn), nil
+	return domain.NewSession(userID, sessionToken, csrfToken, expireOn), nil
 }
 
 func (s SessionStore) StartCleanup(

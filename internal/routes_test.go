@@ -14,6 +14,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -28,7 +29,7 @@ func TestHandlers(t *testing.T) {
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
-	sessionStore := stores.NewSessionStore(db)
+	sessionStore := stores.NewSessionStore(db, time.Now().Add(1*time.Hour))
 	server := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 
 	t.Run("Test Index", func(t *testing.T) {
@@ -166,7 +167,7 @@ func BenchmarkHandlers(t *testing.B) {
 	productStore := stores.NewProductStore(db)
 	sellerStore := stores.NewSellerStore(db)
 	userStore := stores.NewUserStore(db)
-	sessionStore := stores.NewSessionStore(db)
+	sessionStore := stores.NewSessionStore(db, time.Now().Add(1*time.Hour))
 	server := NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 
 	t.Run("Index", func(t *testing.B) {
