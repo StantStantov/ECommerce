@@ -25,7 +25,7 @@ func NewCsrfCookie() (*http.Cookie, error) {
 		return nil, fmt.Errorf("security.NewCsrfCookie: [%w]", err)
 	}
 	return &http.Cookie{
-		Name:     "session_token",
+		Name:     "csrf_token",
 		Value:    token,
 		HttpOnly: false,
 	}, nil

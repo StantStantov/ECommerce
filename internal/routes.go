@@ -20,10 +20,12 @@ func NewMux(categories domain.CategoryStore,
 	styles := http.FileServer(http.Dir("web/static"))
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
-	serveMux.Handle("/", HandleIndex(categories))
-	serveMux.Handle("/category/{id}", HandleCategory(categories, products))
-	serveMux.Handle("/seller/{id}", HandleSeller(sellers, products))
-	serveMux.Handle("/product/{id}", HandleProduct(products))
+
+	checkSession := CheckSessionMiddleware(sessions)
+	serveMux.Handle("/", checkSession(HandleIndex(categories, users)))
+	serveMux.Handle("/category/{id}", checkSession(HandleCategory(categories, products, users)))
+	serveMux.Handle("/seller/{id}", checkSession(HandleSeller(sellers, products, users)))
+	serveMux.Handle("/product/{id}", checkSession(HandleProduct(products, users)))
 
 	serveMux.Handle("GET /register", HandleRegistrationPage())
 	serveMux.Handle("POST /register", HandleRegistration(users))
@@ -33,15 +35,21 @@ func NewMux(categories domain.CategoryStore,
 	return serveMux
 }
 
-func HandleIndex(store domain.CategoryStore) http.Handler {
+func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.Handler {
 	renderer := templates.Index
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			categories, err := store.ReadAll()
+			categories, err := categories.ReadAll()
 			if err != nil {
 				log.Printf("internal.HandleIndex: [%v]", err)
 				http.NotFound(w, r)
 				return
+			}
+
+			userId, ok := GetUserId(r.Context())
+			if ok {
+				user, _ := users.Read(userId)
+				log.Printf("Session: [%v]", user.FirstName())
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -50,7 +58,7 @@ func HandleIndex(store domain.CategoryStore) http.Handler {
 	)
 }
 
-func HandleCategory(categoryStore domain.CategoryStore, productStore domain.ProductStore) http.Handler {
+func HandleCategory(categories domain.CategoryStore, products domain.ProductStore, users domain.UserStore) http.Handler {
 	renderer := templates.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +76,7 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 
 			var eg errgroup.Group
 			eg.Go(func() error {
-				category, err := categoryStore.Read(id)
+				category, err := categories.Read(id)
 				if err != nil {
 					return err
 				}
@@ -76,7 +84,7 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 				return nil
 			})
 			eg.Go(func() error {
-				products, err := productStore.ReadAllByFilter(id, 0)
+				products, err := products.ReadAllByFilter(id, 0)
 				if err != nil {
 					return err
 				}
@@ -91,13 +99,19 @@ func HandleCategory(categoryStore domain.CategoryStore, productStore domain.Prod
 				return
 			}
 
+			userId, ok := GetUserId(r.Context())
+			if ok {
+				user, _ := users.Read(userId)
+				log.Printf("Session: [%v]", user.FirstName())
+			}
+
 			w.WriteHeader(http.StatusOK)
 			renderer(category.Name(), products).Render(r.Context(), w)
 		},
 	)
 }
 
-func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductStore) http.Handler {
+func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, users domain.UserStore) http.Handler {
 	renderer := templates.Seller
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +129,7 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 
 			var eg errgroup.Group
 			eg.Go(func() error {
-				seller, err := sellerStore.Read(id)
+				seller, err := sellers.Read(id)
 				if err != nil {
 					return err
 				}
@@ -123,7 +137,7 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 				return nil
 			})
 			eg.Go(func() error {
-				products, err := productStore.ReadAllByFilter(0, id)
+				products, err := products.ReadAllByFilter(0, id)
 				if err != nil {
 					return err
 				}
@@ -138,13 +152,19 @@ func HandleSeller(sellerStore domain.SellerStore, productStore domain.ProductSto
 				return
 			}
 
+			userId, ok := GetUserId(r.Context())
+			if ok {
+				user, _ := users.Read(userId)
+				log.Printf("Session: [%v]", user.FirstName())
+			}
+
 			w.WriteHeader(http.StatusOK)
 			renderer(seller.Name(), products).Render(r.Context(), w)
 		},
 	)
 }
 
-func HandleProduct(store domain.ProductStore) http.Handler {
+func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Handler {
 	renderer := templates.Product
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -155,11 +175,17 @@ func HandleProduct(store domain.ProductStore) http.Handler {
 				return
 			}
 
-			product, err := store.Read(id)
+			product, err := products.Read(id)
 			if err != nil {
 				log.Printf("internal.HandleProduct: [%v]", err)
 				http.Error(w, "Internal Error", http.StatusInternalServerError)
 				return
+			}
+
+			userId, ok := GetUserId(r.Context())
+			if ok {
+				user, _ := users.Read(userId)
+				log.Printf("Session: [%v]", user.FirstName())
 			}
 
 			w.WriteHeader(http.StatusOK)
