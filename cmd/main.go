@@ -2,6 +2,7 @@ package main
 
 import (
 	"Stant/ECommerce/internal"
+	"Stant/ECommerce/internal/middleware"
 	"Stant/ECommerce/internal/stores"
 	"context"
 	"log"
@@ -31,12 +32,11 @@ func main() {
 	sessionStore := stores.NewSessionStore(db, time.Now().Add(1*time.Hour))
 	defer sessionStore.StopCleanup(sessionStore.StartCleanup(*log.Default(), time.Minute*10))
 
-	loggingMiddleware := internal.LoggingMiddleware(*log.Default())
-
+	logHandlers := middleware.LoggingMiddleware(*log.Default())
 	serveMux := internal.NewMux(categoryStore, sellerStore, productStore, userStore, sessionStore)
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: loggingMiddleware(serveMux),
+		Handler: logHandlers(serveMux),
 	}
 
 	go func() {

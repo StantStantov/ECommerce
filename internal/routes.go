@@ -2,6 +2,7 @@ package internal
 
 import (
 	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/middleware"
 	"Stant/ECommerce/internal/security"
 	templates "Stant/ECommerce/web"
 	"log"
@@ -21,7 +22,7 @@ func NewMux(categories domain.CategoryStore,
 	serveMux := &http.ServeMux{}
 	serveMux.Handle("/static/", http.StripPrefix("/static/", styles))
 
-	checkSession := CheckSessionMiddleware(sessions)
+	checkSession := middleware.CheckSessionMiddleware(sessions)
 	serveMux.Handle("/", checkSession(HandleIndex(categories, users)))
 	serveMux.Handle("/category/{id}", checkSession(HandleCategory(categories, products, users)))
 	serveMux.Handle("/seller/{id}", checkSession(HandleSeller(sellers, products, users)))
@@ -46,7 +47,7 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 				return
 			}
 
-			userId, ok := GetUserId(r.Context())
+			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, _ := users.Read(userId)
 				log.Printf("Session: [%v]", user.FirstName())
@@ -99,7 +100,7 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 				return
 			}
 
-			userId, ok := GetUserId(r.Context())
+			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, _ := users.Read(userId)
 				log.Printf("Session: [%v]", user.FirstName())
@@ -152,7 +153,7 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 				return
 			}
 
-			userId, ok := GetUserId(r.Context())
+			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, _ := users.Read(userId)
 				log.Printf("Session: [%v]", user.FirstName())
@@ -182,7 +183,7 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 				return
 			}
 
-			userId, ok := GetUserId(r.Context())
+			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, _ := users.Read(userId)
 				log.Printf("Session: [%v]", user.FirstName())
