@@ -49,7 +49,10 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ = users.Read(userId)
+				user, err = users.Read(userId)
+				log.Printf("internal.HandleIndex: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -101,7 +104,10 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ = users.Read(userId)
+				user, err = users.Read(userId)
+				log.Printf("internal.HandleCategory: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -153,7 +159,12 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ = users.Read(userId)
+				user, err = users.Read(userId)
+				if err != nil {
+					log.Printf("internal.HandleSeller: [%v]", err)
+					http.Error(w, "Internal Error", http.StatusInternalServerError)
+					return
+				}
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -182,7 +193,12 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ = users.Read(userId)
+				user, err = users.Read(userId)
+				if err != nil {
+					log.Printf("internal.HandleProduct: [%v]", err)
+					http.Error(w, "Internal Error", http.StatusInternalServerError)
+					return
+				}
 			}
 
 			w.WriteHeader(http.StatusOK)
