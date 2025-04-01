@@ -4,7 +4,7 @@ import (
 	"Stant/ECommerce/internal/domain"
 	"Stant/ECommerce/internal/middleware"
 	"Stant/ECommerce/internal/security"
-	templates "Stant/ECommerce/web"
+	"Stant/ECommerce/internal/views"
 	"log"
 	"net/http"
 	"strconv"
@@ -37,7 +37,6 @@ func NewMux(categories domain.CategoryStore,
 }
 
 func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.Handler {
-	renderer := templates.Index
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			categories, err := categories.ReadAll()
@@ -47,20 +46,19 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 				return
 			}
 
+			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ := users.Read(userId)
-				log.Printf("Session: [%v]", user.FirstName())
+				user, _ = users.Read(userId)
 			}
 
 			w.WriteHeader(http.StatusOK)
-			renderer(categories).Render(r.Context(), w)
+			views.RenderIndexPage(categories, user, w, r.Context())
 		},
 	)
 }
 
 func HandleCategory(categories domain.CategoryStore, products domain.ProductStore, users domain.UserStore) http.Handler {
-	renderer := templates.Category
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
@@ -100,20 +98,19 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 				return
 			}
 
+			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ := users.Read(userId)
-				log.Printf("Session: [%v]", user.FirstName())
+				user, _ = users.Read(userId)
 			}
 
 			w.WriteHeader(http.StatusOK)
-			renderer(category.Name(), products).Render(r.Context(), w)
+			views.RenderCategoryPage(category, products, user, w, r.Context())
 		},
 	)
 }
 
 func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, users domain.UserStore) http.Handler {
-	renderer := templates.Seller
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
@@ -153,20 +150,19 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 				return
 			}
 
+			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ := users.Read(userId)
-				log.Printf("Session: [%v]", user.FirstName())
+				user, _ = users.Read(userId)
 			}
 
 			w.WriteHeader(http.StatusOK)
-			renderer(seller.Name(), products).Render(r.Context(), w)
+			views.RenderSellerPage(seller, products, user, w, r.Context())
 		},
 	)
 }
 
 func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Handler {
-	renderer := templates.Product
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id, err := strconv.Atoi(r.PathValue("id"))
@@ -183,24 +179,23 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 				return
 			}
 
+			var user domain.User = domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, _ := users.Read(userId)
-				log.Printf("Session: [%v]", user.FirstName())
+				user, _ = users.Read(userId)
 			}
 
 			w.WriteHeader(http.StatusOK)
-			renderer(product).Render(r.Context(), w)
+			views.RenderProductPage(product, user, w, r.Context())
 		},
 	)
 }
 
 func HandleRegistrationPage() http.Handler {
-	renderer := templates.Registration()
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			renderer.Render(r.Context(), w)
+			views.RenderRegistrationPage(w, r.Context())
 		},
 	)
 }
@@ -250,11 +245,10 @@ func HandleRegistration(users domain.UserStore) http.Handler {
 }
 
 func HandleLoginPage() http.Handler {
-	renderer := templates.Login()
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
-			renderer.Render(r.Context(), w)
+			views.RenderLoginPage(w, r.Context())
 		},
 	)
 }
