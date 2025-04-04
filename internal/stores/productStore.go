@@ -15,16 +15,16 @@ func NewProductStore(db *sql.DB) *ProductStore {
 }
 
 const getProduct = `
-  SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
-  FROM products p
-  JOIN categories c ON p.category_id = c.category_id
-  JOIN sellers s ON p.seller_id = s.seller_id
-  WHERE p.product_id = $1
+  SELECT p.id, p.name, s.id, s.name, c.id, c.name, p.price
+  FROM market.products p
+  JOIN market.categories c ON p.category_id = c.id
+  JOIN market.sellers s ON p.seller_id = s.id
+  WHERE p.id = $1
   LIMIT 1
   ;
 `
 
-func (st ProductStore) Read(id int) (domain.Product, error) {
+func (st ProductStore) Read(id string) (domain.Product, error) {
 	row := st.db.QueryRow(getProduct, id)
 
 	product, err := scanProduct(row)
@@ -35,10 +35,10 @@ func (st ProductStore) Read(id int) (domain.Product, error) {
 }
 
 const getProducts = `
-  SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
-  FROM products p
-  JOIN categories c ON p.category_id = c.category_id
-  JOIN sellers s ON p.seller_id = s.seller_id
+  SELECT p.id, p.name, s.id, s.name, c.id, c.name, p.price
+  FROM market.products p
+  JOIN market.categories c ON p.category_id = c.id
+  JOIN market.sellers s ON p.seller_id = s.id
   ;
 `
 
@@ -61,17 +61,17 @@ func (st ProductStore) ReadAll() ([]domain.Product, error) {
 }
 
 const getProductsByFilter = `
-  SELECT p.product_id, p.product_name, s.seller_id, s.seller_name, c.category_id, c.category_name, p.product_price
-  FROM products p
-  JOIN categories c ON p.category_id = c.category_id
-  JOIN sellers s ON p.seller_id = s.seller_id
+  SELECT p.id, p.name, s.id, s.name, c.id, c.name, p.price
+  FROM market.products p
+  JOIN market.categories c ON p.category_id = c.id
+  JOIN market.sellers s ON p.seller_id = s.id
   WHERE
-    (c.category_id = $1 OR NULLIF($1, 0) IS NULL)
-    AND (s.seller_id = $2 OR NULLIF($2, 0) IS NULL)
+    (c.id = $1 OR NULLIF($1, '00000000-0000-0000-0000-000000000000') IS NULL)
+    AND (s.id = $2 OR NULLIF($2, '00000000-0000-0000-0000-000000000000') IS NULL)
   ;
 `
 
-func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.Product, error) {
+func (st ProductStore) ReadAllByFilter(categoryID, sellerID string) ([]domain.Product, error) {
 	rows, err := st.db.Query(getProductsByFilter, categoryID, sellerID)
 	if err != nil {
 		return nil, err
@@ -91,11 +91,11 @@ func (st ProductStore) ReadAllByFilter(categoryID int, sellerID int) ([]domain.P
 
 func scanProduct(row sqlRow) (domain.Product, error) {
 	var (
-		productID    int32
+		productID    string
 		name         string
-		sellerID     int32
+		sellerID     string
 		sellerName   string
-		categoryID   int32
+		categoryID   string
 		categoryName string
 		price        float64
 	)

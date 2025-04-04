@@ -18,14 +18,14 @@ func NewSessionStore(db *sql.DB, sessionLifetime time.Time) *SessionStore {
 }
 
 const createSession = `
-  INSERT INTO sessions
+  INSERT INTO market.sessions
   (user_id, session_token, csrf_token, expire_on)
   VALUES
   ($1, $2, $3, $4)
   ;
 `
 
-func (s SessionStore) Create(userID int32, sessionToken, csrfToken string) error {
+func (s SessionStore) Create(userID, sessionToken, csrfToken string) error {
 	if _, err := s.db.Exec(createSession, userID, sessionToken, csrfToken, s.sessionLifetime); err != nil {
 		return fmt.Errorf("stores.SessionStore.Create: [%w]", err)
 	}
@@ -33,7 +33,7 @@ func (s SessionStore) Create(userID int32, sessionToken, csrfToken string) error
 }
 
 const readSession = `
-  SELECT * FROM sessions
+  SELECT * FROM market.sessions
   WHERE session_token = $1
   LIMIT 1
   ;
@@ -49,7 +49,7 @@ func (s SessionStore) Read(sessionToken string) (domain.Session, error) {
 }
 
 const deleteSessionByToken = `
-  DELETE FROM sessions
+  DELETE FROM market.sessions
   WHERE session_token = $1 
   ;
 `
@@ -62,7 +62,7 @@ func (s SessionStore) Delete(sessionToken string) error {
 }
 
 const deleteExpiredSessions = `
-  DELETE FROM sessions
+  DELETE FROM market.sessions
   WHERE expire_on < now() 
   ;
 `
@@ -76,7 +76,7 @@ func (s SessionStore) DeleteAllExpired() error {
 
 func scanSession(row sqlRow) (domain.Session, error) {
 	var (
-		userID       int32
+		userID       string
 		sessionToken string
 		csrfToken    string
 		expireOn     time.Time

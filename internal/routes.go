@@ -7,7 +7,6 @@ import (
 	"Stant/ECommerce/internal/views"
 	"log"
 	"net/http"
-	"strconv"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -46,13 +45,15 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 				return
 			}
 
-			var user domain.User = domain.User{}
+			user := domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err = users.Read(userId)
-				log.Printf("internal.HandleIndex: [%v]", err)
-				http.Error(w, "Internal Error", http.StatusInternalServerError)
-				return
+				if err != nil {
+					log.Printf("internal.HandleIndex: [%v]", err)
+					http.Error(w, "Internal Error", http.StatusInternalServerError)
+					return
+				}
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -64,12 +65,7 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 func HandleCategory(categories domain.CategoryStore, products domain.ProductStore, users domain.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			id, err := strconv.Atoi(r.PathValue("id"))
-			if err != nil {
-				log.Printf("internal.HandleCategory: [%v]", err)
-				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
-				return
-			}
+			id := r.PathValue("id")
 
 			categoryChan := make(chan domain.Category)
 			defer close(categoryChan)
@@ -86,7 +82,7 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 				return nil
 			})
 			eg.Go(func() error {
-				products, err := products.ReadAllByFilter(id, 0)
+				products, err := products.ReadAllByFilter(id, "00000000-0000-0000-0000-000000000000")
 				if err != nil {
 					return err
 				}
@@ -101,13 +97,16 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 				return
 			}
 
-			var user domain.User = domain.User{}
+			user := domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, err = users.Read(userId)
-				log.Printf("internal.HandleCategory: [%v]", err)
-				http.Error(w, "Internal Error", http.StatusInternalServerError)
-				return
+				user, err := users.Read(userId)
+				if err != nil {
+					log.Printf("internal.HandleCategory: [%v]", err)
+					http.Error(w, "Internal Error", http.StatusInternalServerError)
+					return
+				}
+				user = user
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -119,12 +118,7 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, users domain.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			id, err := strconv.Atoi(r.PathValue("id"))
-			if err != nil {
-				log.Printf("internal.HandleSeller: [%v]", err)
-				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
-				return
-			}
+			id := r.PathValue("id")
 
 			sellerChan := make(chan domain.Seller)
 			defer close(sellerChan)
@@ -141,7 +135,7 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 				return nil
 			})
 			eg.Go(func() error {
-				products, err := products.ReadAllByFilter(0, id)
+				products, err := products.ReadAllByFilter("00000000-0000-0000-0000-000000000000", id)
 				if err != nil {
 					return err
 				}
@@ -156,15 +150,16 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 				return
 			}
 
-			var user domain.User = domain.User{}
+			user := domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
-				user, err = users.Read(userId)
+				user, err := users.Read(userId)
 				if err != nil {
 					log.Printf("internal.HandleSeller: [%v]", err)
 					http.Error(w, "Internal Error", http.StatusInternalServerError)
 					return
 				}
+				user = user
 			}
 
 			w.WriteHeader(http.StatusOK)
@@ -176,12 +171,7 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			id, err := strconv.Atoi(r.PathValue("id"))
-			if err != nil {
-				log.Printf("internal.HandleProduct: [%v]", err)
-				http.Error(w, "Coudn't parse ID", http.StatusInternalServerError)
-				return
-			}
+			id := r.PathValue("id")
 
 			product, err := products.Read(id)
 			if err != nil {
@@ -190,7 +180,7 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 				return
 			}
 
-			var user domain.User = domain.User{}
+			user := domain.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err = users.Read(userId)

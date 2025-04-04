@@ -15,7 +15,7 @@ func NewUserStore(db *sql.DB) *UserStore {
 }
 
 const createUser = `
-  INSERT INTO users
+  INSERT INTO market.users
   (email, first_name, second_name, password)
   VALUES
   ($1, $2, $3, $4)
@@ -32,7 +32,7 @@ func (s UserStore) Create(email, fisrtName, secondName, password string) error {
 
 const checkUser = `
   SELECT EXISTS
-  (SELECT 1 FROM users 
+  (SELECT 1 FROM market.users 
   WHERE email = $1 
   LIMIT 1)
   ;
@@ -49,13 +49,13 @@ func (s UserStore) IsExists(email string) (bool, error) {
 }
 
 const getUserByID = `
-  SELECT * FROM users 
+  SELECT * FROM market.users 
   WHERE id = $1 
   LIMIT 1
   ;
 `
 
-func (s UserStore) Read(id int32) (domain.User, error) {
+func (s UserStore) Read(id string) (domain.User, error) {
 	row := s.db.QueryRow(getUserByID, id)
 	user, err := scanUser(row)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s UserStore) Read(id int32) (domain.User, error) {
 }
 
 const getUserByEmail = `
-  SELECT * FROM users 
+  SELECT * FROM market.users 
   WHERE email = $1
   LIMIT 1
   ;
@@ -82,7 +82,7 @@ func (s UserStore) ReadByEmail(email string) (domain.User, error) {
 
 func scanUser(row sqlRow) (domain.User, error) {
 	var (
-		id             int32
+		id             string
 		email          string
 		firstName      string
 		secondName     string

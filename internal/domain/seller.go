@@ -1,18 +1,18 @@
 package domain
 
 type Seller struct {
-	id   int32
+	id   string
 	name string
 }
 
-func NewSeller(id int32, name string) Seller {
+func NewSeller(id, name string) Seller {
 	return Seller{
 		id:   id,
 		name: name,
 	}
 }
 
-func (s Seller) ID() int32 {
+func (s Seller) ID() string {
 	return s.id
 }
 

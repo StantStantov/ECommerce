@@ -16,13 +16,13 @@ func NewCategoryStore(db *sql.DB) *CategoryStore {
 
 const getCategory = `
   SELECT * 
-  FROM categories 
-  WHERE category_id = $1 
+  FROM market.categories 
+  WHERE id = $1 
   LIMIT 1
   ;
 `
 
-func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
+func (st CategoryStore) Read(categoryID string) (domain.Category, error) {
 	row := st.db.QueryRow(getCategory, categoryID)
 	category, err := scanCategory(row)
 	if err != nil {
@@ -33,7 +33,7 @@ func (st CategoryStore) Read(categoryID int) (domain.Category, error) {
 
 const getCategories = `
   SELECT * 
-  FROM categories
+  FROM market.categories
   ;
 `
 
@@ -57,7 +57,7 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 
 func scanCategory(row sqlRow) (domain.Category, error) {
 	var (
-		id   int32
+		id   string
 		name string
 	)
 	if err := row.Scan(&id, &name); err != nil {

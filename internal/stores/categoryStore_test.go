@@ -30,12 +30,13 @@ func TestCategoryStore(t *testing.T) {
 func testCategoryRead(t *testing.T, store domain.CategoryStore) {
 	t.Helper()
 
-	got, err := store.Read(1)
+	id := "c735f60a-bebf-4d2f-a016-190a883eb99f"
+	got, err := store.Read(id)
 	if err != nil {
 		t.Error(err)
 	}
 
-	want := domain.NewCategory(1, "Laptops")
+	want := domain.NewCategory(id, "Head")
 
 	checkCategory(t, got, want)
 }
@@ -49,9 +50,10 @@ func testCategoryReadAll(t *testing.T, store domain.CategoryStore) {
 	}
 
 	want := []domain.Category{
-		domain.NewCategory(1, "Laptops"),
-		domain.NewCategory(2, "Phones"),
-		domain.NewCategory(3, "Electronics"),
+		domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+		domain.NewCategory("7670dd24-fffd-4ede-8fad-17613ec6f2ba", "Core"),
+		domain.NewCategory("70b0d225-f526-4c8b-aafd-cdea3f2977d2", "Arms"),
+		domain.NewCategory("10021a86-d948-4c54-bdf2-00df93a22add", "Legs"),
 	}
 
 	if !slices.EqualFunc(got, want, isEqualCategories) {

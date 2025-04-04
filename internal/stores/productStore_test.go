@@ -34,12 +34,16 @@ func TestProductStore(t *testing.T) {
 func testRead(t *testing.T, store domain.ProductStore) {
 	t.Helper()
 
-	got, err := store.Read(2)
+	id := "961dd7d0-95b3-492e-833e-c33875a64d0f"
+	got, err := store.Read(id)
 	if err != nil {
 		t.Error(err)
 	}
 
-	want := domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000)
+	want := domain.NewProduct(id, "HD-033M VERRILL",
+		domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
+		domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+		205000)
 
 	checkProduct(t, got, want)
 }
@@ -53,12 +57,22 @@ func testReadAll(t *testing.T, store domain.ProductStore) {
 	}
 
 	want := []domain.Product{
-		domain.NewProduct(1, "MateBook", domain.NewSeller(1, "HUAWEI"), domain.NewCategory(1, "Laptops"), 15000),
-		domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000),
-		domain.NewProduct(3, "MacBook 1", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
-		domain.NewProduct(4, "MacBook 2", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
-		domain.NewProduct(5, "MacBook 3", domain.NewSeller(3, "Apple"), domain.NewCategory(1, "Laptops"), 15000),
-		domain.NewProduct(6, "Iphone", domain.NewSeller(3, "Apple"), domain.NewCategory(2, "Phones"), 15000),
+		domain.NewProduct("961dd7d0-95b3-492e-833e-c33875a64d0f", "HD-033M VERRILL",
+			domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			205000),
+		domain.NewProduct("02cab72f-e225-4c3d-b725-faaa5d66ca74", "HD-011 MELANDER",
+			domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			75000),
+		domain.NewProduct("29f9978e-77f1-4e03-a054-9244d6bb00d0", "VP-44D",
+			domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			231000),
+		domain.NewProduct("55a47ff6-d8e2-491b-9378-8d536c1f4e44", "VP-44S",
+			domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			124000),
 	}
 
 	checkProducts(t, got, want)
@@ -67,13 +81,20 @@ func testReadAll(t *testing.T, store domain.ProductStore) {
 func testReadAllByFilter(t *testing.T, store domain.ProductStore) {
 	t.Helper()
 
-	got, err := store.ReadAllByFilter(1, 2)
+	got, err := store.ReadAllByFilter("c735f60a-bebf-4d2f-a016-190a883eb99f", "7e13d4e2-408b-494f-a611-1950a3a36616")
 	if err != nil {
 		t.Error(err)
 	}
 
 	want := []domain.Product{
-		domain.NewProduct(2, "ThinkPad", domain.NewSeller(2, "Lenovo"), domain.NewCategory(1, "Laptops"), 10000),
+		domain.NewProduct("29f9978e-77f1-4e03-a054-9244d6bb00d0", "VP-44D",
+			domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			231000),
+		domain.NewProduct("55a47ff6-d8e2-491b-9378-8d536c1f4e44", "VP-44S",
+			domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
+			domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+			124000),
 	}
 
 	checkProducts(t, got, want)

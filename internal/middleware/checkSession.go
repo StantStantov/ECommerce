@@ -26,14 +26,14 @@ func CheckSessionMiddleware(sessions domain.SessionStore) func(http.Handler) htt
 	}
 }
 
-func setUserId(ctx context.Context, id int32) context.Context {
+func setUserId(ctx context.Context, id string) context.Context {
 	return context.WithValue(ctx, "userID", id)
 }
 
-func GetUserId(ctx context.Context) (int32, bool) {
-	id, ok := ctx.Value("userID").(int32)
+func GetUserId(ctx context.Context) (string, bool) {
+	id, ok := ctx.Value("userID").(string)
 	if !ok {
-		return 0, false
+		return "", false
 	}
 	return id, true
 }

@@ -42,7 +42,8 @@ func testSessionCreate(t *testing.T, store domain.SessionStore) {
 		t.Errorf("Failed to create CSRF Cookie: [%v]", err)
 	}
 
-	if err := store.Create(3, sessionCookie.Value, csrfCookie.Value); err != nil {
+	userID := "02f95483-7934-41b7-af1e-40eaf67817fc"
+	if err := store.Create(userID, sessionCookie.Value, csrfCookie.Value); err != nil {
 		t.Fatalf("Failed to create session in DB: [%v]", err)
 	}
 }
@@ -50,7 +51,7 @@ func testSessionCreate(t *testing.T, store domain.SessionStore) {
 func testSessionRead(t *testing.T, store domain.SessionStore) {
 	t.Helper()
 
-	userID := int32(1)
+	userID := "ad43dfbf-1152-478c-a595-e3ebe5ad0085"
 	sessionToken := "2-bJbG-BU5h1fKovzqoEnwOxDsz9bm1-8vVRHYav5Z29DcaDUchc0LNufSGCEjKFsXGNtn0ZF0FdcXi9_npSGg=="
 	csrfToken := "DpwoY8fzNfVyBnJDl9mEclJoZcWW8kxtZIo-CdMMvGnGfwzrrqwogUyVnUZknwazD_MXxEop5ewgxp2S-wTtig=="
 	expireOn := time.Date(2025, 3, 13, 14, 33, 57, 0, time.Now().Location())

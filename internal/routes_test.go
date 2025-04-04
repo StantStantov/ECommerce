@@ -79,12 +79,13 @@ func testCategoryHandler(t *testing.T,
 ) {
 	t.Helper()
 
+	id := "c735f60a-bebf-4d2f-a016-190a883eb99f"
 	got := httptest.NewRecorder()
-	server.ServeHTTP(got, newGetRequest(t, "/category/1", nil))
+	server.ServeHTTP(got, newGetRequest(t, "/category/"+id, nil))
 
 	want := httptest.NewRecorder()
-	wantCategory, _ := categories.Read(1)
-	wantProducts, _ := products.ReadAllByFilter(1, 0)
+	wantCategory, _ := categories.Read(id)
+	wantProducts, _ := products.ReadAllByFilter(id, "00000000-0000-0000-0000-000000000000")
 	templates.Category(wantCategory, wantProducts, templates.UserViewModel{}).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
@@ -97,12 +98,13 @@ func testSellerHandler(t *testing.T, server *http.ServeMux,
 ) {
 	t.Helper()
 
+	id := "f4d234ff-7aa5-4986-954c-8c2cc61ea0fc"
 	got := httptest.NewRecorder()
-	server.ServeHTTP(got, newGetRequest(t, "/seller/1", nil))
+	server.ServeHTTP(got, newGetRequest(t, "/seller/"+id, nil))
 
 	want := httptest.NewRecorder()
-	wantSeller, _ := sellers.Read(1)
-	wantProduct, _ := products.ReadAllByFilter(0, 1)
+	wantSeller, _ := sellers.Read(id)
+	wantProduct, _ := products.ReadAllByFilter("00000000-0000-0000-0000-000000000000", id)
 	templates.Seller(wantSeller, wantProduct, templates.UserViewModel{}).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
@@ -112,11 +114,12 @@ func testSellerHandler(t *testing.T, server *http.ServeMux,
 func testProductHandler(t *testing.T, server *http.ServeMux, products domain.ProductStore) {
 	t.Helper()
 
+	id := "02cab72f-e225-4c3d-b725-faaa5d66ca74"
 	got := httptest.NewRecorder()
-	server.ServeHTTP(got, newGetRequest(t, "/product/1", nil))
+	server.ServeHTTP(got, newGetRequest(t, "/product/"+id, nil))
 
 	want := httptest.NewRecorder()
-	wantProduct, _ := products.Read(1)
+	wantProduct, _ := products.Read(id)
 	templates.Product(wantProduct, templates.UserViewModel{}).Render(context.Background(), want)
 
 	checkResponseStatus(t, got.Code, http.StatusOK)

@@ -28,9 +28,6 @@ func TestUserStore(t *testing.T) {
 		t.Parallel()
     testUserRead(t, store)
 	})
-	// t.Run("Test ReadAll", func(t *testing.T) {
-	// 	t.Parallel()
-	// })
 }
 
 func testUserCreate(t *testing.T, store domain.UserStore) {
@@ -66,7 +63,8 @@ func testUserIsExists(t *testing.T, store domain.UserStore) {
 func testUserRead(t *testing.T, store domain.UserStore) {
 	t.Helper()
 
-	got, err := store.Read(1)
+	id := "ad43dfbf-1152-478c-a595-e3ebe5ad0085"
+	got, err := store.Read(id)
 	if err != nil {
 		t.Fatalf("Failed to confirm existence of user in DB: [%v]", err)
 	}
@@ -75,7 +73,7 @@ func testUserRead(t *testing.T, store domain.UserStore) {
 	firstName := "read"
 	secondName := "ME"
 	hashedPassword := "$2a$10$sgEy3LehHNpbZ7NjqDhMiejJ8gaQTcykfv1VFJL42aPN8pZJL45EW"
-	want := domain.NewUser(1, email, firstName, secondName, hashedPassword)
+	want := domain.NewUser(id, email, firstName, secondName, hashedPassword)
 
 	checkUser(t, got, want)
 }

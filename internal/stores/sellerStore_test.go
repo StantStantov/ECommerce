@@ -30,12 +30,12 @@ func TestSellerStore(t *testing.T) {
 func testSellerRead(t *testing.T, store domain.SellerStore) {
 	t.Helper()
 
-	got, err := store.Read(1)
+	got, err := store.Read("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc")
 	if err != nil {
 		t.Error(err)
 	}
 
-	want := domain.NewSeller(1, "HUAWEI")
+	want := domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries")
 
 	checkSeller(t, got, want)
 }
@@ -49,9 +49,8 @@ func testSellerReadAll(t *testing.T, store domain.SellerStore) {
 	}
 
 	want := []domain.Seller{
-		domain.NewSeller(1, "HUAWEI"),
-		domain.NewSeller(2, "Lenovo"),
-		domain.NewSeller(3, "Apple"),
+		domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
+		domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
 	}
 
 	if !slices.EqualFunc(got, want, isEqualSellers) {
