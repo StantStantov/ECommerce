@@ -1,7 +1,9 @@
-package templates
+package components
 
-templ searchIcon(params string) {
-	<svg class={ params } width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+type IconType templ.Component
+
+templ IconSearch(params string) {
+	<svg class={ params } width="24" height="24" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 		<path
 			fill-rule="evenodd"
 			clip-rule="evenodd"

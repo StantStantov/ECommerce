@@ -1,0 +1,21 @@
+package components
+
+type ButtonType string
+
+const (
+	ButtonRed   ButtonType = "hover:text-red hover:brd-color-red active:text-background active:bg-red"
+	ButtonGreen ButtonType = "hover:text-green hover:brd-color-green active:text-background active:bg-green"
+	ButtonBlue  ButtonType = "hover:text-blue hover:brd-color-blue active:text-background active:bg-blue"
+)
+
+templ Button(buttonType ButtonType, icon IconType, text string) {
+	<button
+		class={ `flex flex-row align-center gap-x-8 padding-primary w-256 h-48 text-primary brd-radius-primary
+  brd-width-primary brd-color-primary brd-style-primary transition-color` , string(buttonType) }
+	>
+		<div class="w-24 h-24 brd-radius-primary brd-width-primary brd-style-primary">
+			@icon
+		</div>
+		<text class="font-sans font-extralight text-base text-left">{ text }</text>
+	</button>
+}

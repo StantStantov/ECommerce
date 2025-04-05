@@ -1,5 +1,7 @@
 package templates
 
+import "Stant/ECommerce/internal/views/templates/components"
+
 templ Registration() {
 	@head()
 	<html>
@@ -28,7 +30,7 @@ templ registrationBody() {
 				<label for="password">Password:</label>
 				<input type="text" id="password" name="password"/>
 			</p>
-			@button(buttonGreen, "Confirm")
+			@components.Button(components.ButtonGreen, components.IconSearch("fill-current"), "Register")
 		</form>
 	</div>
 }

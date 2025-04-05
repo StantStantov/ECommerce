@@ -3,7 +3,6 @@ module Stant/ECommerce
 go 1.23.4
 
 require (
-	github.com/a-h/templ v0.3.856
 	github.com/jackc/pgx/v5 v5.7.2
 	golang.org/x/crypto v0.36.0
 	golang.org/x/sync v0.12.0
@@ -11,6 +10,7 @@ require (
 
 require (
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
+	github.com/a-h/templ v0.3.856 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cli/browser v1.3.0 // indirect
