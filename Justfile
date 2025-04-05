@@ -20,7 +20,7 @@ tests:
   #!/usr/bin/env sh
   source {{TEST_ENV_FILE}}
   COMPOSE_BAKE=true docker compose -f {{TEST_DOCKER_COMPOSE}} --env-file {{TEST_ENV_FILE}} build
-  for directory in `find internal/ -maxdepth 1 -type d`; do
+  for directory in `find internal/ -maxdepth 2 -type d`; do
     if `find ${directory} -maxdepth 1 -name "*_test.go" | read v`; then
       test_dir="market_test_${directory////_}";
       test_cmd="go test ./${directory} -count=1";

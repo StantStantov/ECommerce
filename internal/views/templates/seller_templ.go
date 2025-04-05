@@ -8,9 +8,9 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "Stant/ECommerce/internal/domain"
+import "Stant/ECommerce/internal/domain/models"
 
-func Seller(seller domain.Seller, products []domain.Product, user UserViewModel) templ.Component {
+func Seller(seller models.Seller, products []models.Product, user UserViewModel) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -59,7 +59,7 @@ func Seller(seller domain.Seller, products []domain.Product, user UserViewModel)
 	})
 }
 
-func sellerBody(name string, products []domain.Product) templ.Component {
+func sellerBody(name string, products []models.Product) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

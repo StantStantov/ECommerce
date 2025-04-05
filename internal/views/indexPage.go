@@ -1,7 +1,7 @@
 package views
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"Stant/ECommerce/internal/views/templates"
 	"context"
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func RenderIndexPage(categories []domain.Category, user domain.User, w http.ResponseWriter, ctx context.Context) {
+func RenderIndexPage(categories []models.Category, user models.User, w http.ResponseWriter, ctx context.Context) {
 	var viewModel templates.UserViewModel
 	if !reflect.ValueOf(user).IsZero() {
 		viewModel = templates.UserViewModel{

@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"database/sql"
 	"fmt"
 )
@@ -22,7 +22,7 @@ const getSeller = `
   ;
 `
 
-func (st SellerStore) Read(categoryID string) (domain.Seller, error) {
+func (st SellerStore) Read(categoryID string) (models.Seller, error) {
 	row := st.db.QueryRow(getSeller, categoryID)
 	seller, err := scanSeller(row)
 	if err != nil {
@@ -37,13 +37,13 @@ const getSellers = `
   ;
 `
 
-func (st SellerStore) ReadAll() ([]domain.Seller, error) {
+func (st SellerStore) ReadAll() ([]models.Seller, error) {
 	rows, err := st.db.Query(getSellers)
 	if err != nil {
 		return nil, err
 	}
 
-	sellers := []domain.Seller{}
+	sellers := []models.Seller{}
 	defer rows.Close()
 	for rows.Next() {
 		seller, err := scanSeller(rows)
@@ -55,13 +55,13 @@ func (st SellerStore) ReadAll() ([]domain.Seller, error) {
 	return sellers, nil
 }
 
-func scanSeller(row sqlRow) (domain.Seller, error) {
+func scanSeller(row sqlRow) (models.Seller, error) {
 	var (
 		id   string
 		name string
 	)
 	if err := row.Scan(&id, &name); err != nil {
-		return domain.Seller{}, fmt.Errorf("stores.scanSeller: [%w]", err)
+		return models.Seller{}, fmt.Errorf("stores.scanSeller: [%w]", err)
 	}
-	return domain.NewSeller(id, name), nil
+	return models.NewSeller(id, name), nil
 }

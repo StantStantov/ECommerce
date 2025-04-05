@@ -1,4 +1,4 @@
-package domain
+package models
 
 type User struct {
 	id             string
@@ -10,11 +10,11 @@ type User struct {
 
 func NewUser(id, email, firstName, secondName, hashedPassword string) User {
 	return User{
-		id:         id,
-		email:      email,
-		firstName:  firstName,
-		secondName: secondName,
-    hashedPassword: hashedPassword,
+		id:             id,
+		email:          email,
+		firstName:      firstName,
+		secondName:     secondName,
+		hashedPassword: hashedPassword,
 	}
 }
 

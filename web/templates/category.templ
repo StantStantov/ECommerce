@@ -1,35 +1,35 @@
 package templates
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"strconv"
 )
 
-templ Category(name string, products []domain.Product) {
+templ Category(category models.Category, products []models.Product, userInfo UserViewModel) {
 	@head()
 	<html>
 		<body>
-			@header()
-			@categoryBody(name, products)
+			@header(userInfo)
+			@categoryBody(category.Name(), products)
 			@footer()
 		</body>
 	</html>
 }
 
-templ categoryBody(name string, products []domain.Product) {
+templ categoryBody(name string, products []models.Product) {
 	<h2>{ name }</h2>
 	for _, product := range products {
 		@productCard(product)
 	}
 }
 
-templ productCard(product domain.Product) {
-	<a href={ templ.URL("/product/" + strconv.FormatInt(int64(product.ID()), 10)) }>
+templ productCard(product models.Product) {
+	<a href={ templ.URL("/product/" + product.ID()) }>
 		<div>{ product.Name() }</div>
-		<a href={ templ.URL("/category/" + strconv.FormatInt(int64(product.Category().ID()), 10)) }>
+		<a href={ templ.URL("/category/" + product.Category().ID()) }>
 			<div>{ product.Category().Name() }</div>
 		</a>
-		<a href={ templ.URL("/seller/" + strconv.FormatInt(int64(product.Seller().ID()), 10)) }>
+		<a href={ templ.URL("/seller/" + product.Seller().ID()) }>
 			<div>{ product.Seller().Name() }</div>
 		</a>
 		<div>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</div>

@@ -1,19 +1,19 @@
 package templates
 
-import "Stant/ECommerce/internal/domain"
+import "Stant/ECommerce/internal/domain/models"
 
-templ Seller(name string, products []domain.Product) {
+templ Seller(seller models.Seller, products []models.Product, user UserViewModel) {
 	@head()
 	<html>
 		<body>
-			@header()
-			@sellerBody(name, products)
+			@header(user)
+			@sellerBody(seller.Name(), products)
 			@footer()
 		</body>
 	</html>
 }
 
-templ sellerBody(name string, products []domain.Product) {
+templ sellerBody(name string, products []models.Product) {
 	<h2>{ name }</h2>
 	for _, product := range products {
 		@productCard(product)

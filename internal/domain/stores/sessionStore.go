@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"database/sql"
 	"fmt"
 	"log"
@@ -39,7 +39,7 @@ const readSession = `
   ;
 `
 
-func (s SessionStore) Read(sessionToken string) (domain.Session, error) {
+func (s SessionStore) Read(sessionToken string) (models.Session, error) {
 	row := s.db.QueryRow(readSession, sessionToken)
 	session, err := scanSession(row)
 	if err != nil {
@@ -74,7 +74,7 @@ func (s SessionStore) DeleteAllExpired() error {
 	return nil
 }
 
-func scanSession(row sqlRow) (domain.Session, error) {
+func scanSession(row sqlRow) (models.Session, error) {
 	var (
 		userID       string
 		sessionToken string
@@ -82,9 +82,9 @@ func scanSession(row sqlRow) (domain.Session, error) {
 		expireOn     time.Time
 	)
 	if err := row.Scan(&userID, &sessionToken, &csrfToken, &expireOn); err != nil {
-		return domain.Session{}, fmt.Errorf("stores.scanSession: [%w]", err)
+		return models.Session{}, fmt.Errorf("stores.scanSession: [%w]", err)
 	}
-	return domain.NewSession(userID, sessionToken, csrfToken, expireOn), nil
+	return models.NewSession(userID, sessionToken, csrfToken, expireOn), nil
 }
 
 func (s SessionStore) StartCleanup(

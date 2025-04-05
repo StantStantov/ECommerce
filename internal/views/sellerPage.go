@@ -1,7 +1,7 @@
 package views
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"Stant/ECommerce/internal/views/templates"
 	"context"
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func RenderSellerPage(seller domain.Seller, products []domain.Product, user domain.User,
+func RenderSellerPage(seller models.Seller, products []models.Product, user models.User,
 	w http.ResponseWriter, responseCtx context.Context,
 ) {
 	var viewModel templates.UserViewModel

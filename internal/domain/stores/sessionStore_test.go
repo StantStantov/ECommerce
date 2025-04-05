@@ -1,9 +1,9 @@
 package stores_test
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
+	"Stant/ECommerce/internal/domain/stores"
 	"Stant/ECommerce/internal/security"
-	"Stant/ECommerce/internal/stores"
 	"testing"
 	"time"
 )
@@ -30,7 +30,7 @@ func TestSessionStore(t *testing.T) {
 	})
 }
 
-func testSessionCreate(t *testing.T, store domain.SessionStore) {
+func testSessionCreate(t *testing.T, store models.SessionStore) {
 	t.Helper()
 
 	sessionCookie, err := security.NewSessionCookie()
@@ -48,7 +48,7 @@ func testSessionCreate(t *testing.T, store domain.SessionStore) {
 	}
 }
 
-func testSessionRead(t *testing.T, store domain.SessionStore) {
+func testSessionRead(t *testing.T, store models.SessionStore) {
 	t.Helper()
 
 	userID := "ad43dfbf-1152-478c-a595-e3ebe5ad0085"
@@ -61,12 +61,12 @@ func testSessionRead(t *testing.T, store domain.SessionStore) {
 		t.Fatalf("Failed to read session from DB: [%v]", err)
 	}
 
-	want := domain.NewSession(userID, sessionToken, csrfToken, expireOn)
+	want := models.NewSession(userID, sessionToken, csrfToken, expireOn)
 
 	checkSession(t, got, want)
 }
 
-func testSessionDelete(t *testing.T, store domain.SessionStore) {
+func testSessionDelete(t *testing.T, store models.SessionStore) {
 	t.Helper()
 
 	sessionToken := "lv1qhEGQgUn1Z3tFqKdCuvq_--W2ptuGp0oV5wRajtlC0sPN9xqsAxEZ6w2RGd-JX7nrk4_rO51tJXhoSONgmw=="
@@ -76,7 +76,7 @@ func testSessionDelete(t *testing.T, store domain.SessionStore) {
 	}
 }
 
-func checkSession(t *testing.T, got, want domain.Session) {
+func checkSession(t *testing.T, got, want models.Session) {
 	t.Helper()
 
 	if got.SessionToken() != want.SessionToken() {

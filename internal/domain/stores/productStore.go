@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"database/sql"
 	"fmt"
 )
@@ -24,7 +24,7 @@ const getProduct = `
   ;
 `
 
-func (st ProductStore) Read(id string) (domain.Product, error) {
+func (st ProductStore) Read(id string) (models.Product, error) {
 	row := st.db.QueryRow(getProduct, id)
 
 	product, err := scanProduct(row)
@@ -42,13 +42,13 @@ const getProducts = `
   ;
 `
 
-func (st ProductStore) ReadAll() ([]domain.Product, error) {
+func (st ProductStore) ReadAll() ([]models.Product, error) {
 	rows, err := st.db.Query(getProducts)
 	if err != nil {
 		return nil, err
 	}
 
-	products := []domain.Product{}
+	products := []models.Product{}
 	defer rows.Close()
 	for rows.Next() {
 		product, err := scanProduct(rows)
@@ -71,13 +71,13 @@ const getProductsByFilter = `
   ;
 `
 
-func (st ProductStore) ReadAllByFilter(categoryID, sellerID string) ([]domain.Product, error) {
+func (st ProductStore) ReadAllByFilter(categoryID, sellerID string) ([]models.Product, error) {
 	rows, err := st.db.Query(getProductsByFilter, categoryID, sellerID)
 	if err != nil {
 		return nil, err
 	}
 
-	products := []domain.Product{}
+	products := []models.Product{}
 	defer rows.Close()
 	for rows.Next() {
 		product, err := scanProduct(rows)
@@ -89,7 +89,7 @@ func (st ProductStore) ReadAllByFilter(categoryID, sellerID string) ([]domain.Pr
 	return products, nil
 }
 
-func scanProduct(row sqlRow) (domain.Product, error) {
+func scanProduct(row sqlRow) (models.Product, error) {
 	var (
 		productID    string
 		name         string
@@ -100,13 +100,13 @@ func scanProduct(row sqlRow) (domain.Product, error) {
 		price        float64
 	)
 	if err := row.Scan(&productID, &name, &sellerID, &sellerName, &categoryID, &categoryName, &price); err != nil {
-		return domain.Product{}, fmt.Errorf("stores.scanProduct: [%w]", err)
+		return models.Product{}, fmt.Errorf("stores.scanProduct: [%w]", err)
 	}
-	return domain.NewProduct(
+	return models.NewProduct(
 			productID,
 			name,
-			domain.NewSeller(sellerID, sellerName),
-			domain.NewCategory(categoryID, categoryName),
+			models.NewSeller(sellerID, sellerName),
+			models.NewCategory(categoryID, categoryName),
 			price),
 		nil
 }

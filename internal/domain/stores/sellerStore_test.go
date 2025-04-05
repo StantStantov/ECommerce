@@ -1,8 +1,8 @@
 package stores_test
 
 import (
-	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/internal/stores"
+	"Stant/ECommerce/internal/domain/models"
+	"Stant/ECommerce/internal/domain/stores"
 	"slices"
 	"testing"
 
@@ -27,7 +27,7 @@ func TestSellerStore(t *testing.T) {
 	})
 }
 
-func testSellerRead(t *testing.T, store domain.SellerStore) {
+func testSellerRead(t *testing.T, store models.SellerStore) {
 	t.Helper()
 
 	got, err := store.Read("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc")
@@ -35,12 +35,12 @@ func testSellerRead(t *testing.T, store domain.SellerStore) {
 		t.Error(err)
 	}
 
-	want := domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries")
+	want := models.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries")
 
 	checkSeller(t, got, want)
 }
 
-func testSellerReadAll(t *testing.T, store domain.SellerStore) {
+func testSellerReadAll(t *testing.T, store models.SellerStore) {
 	t.Helper()
 
 	got, err := store.ReadAll()
@@ -48,9 +48,9 @@ func testSellerReadAll(t *testing.T, store domain.SellerStore) {
 		t.Error(err)
 	}
 
-	want := []domain.Seller{
-		domain.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
-		domain.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
+	want := []models.Seller{
+		models.NewSeller("f4d234ff-7aa5-4986-954c-8c2cc61ea0fc", "Balam Industries"),
+		models.NewSeller("7e13d4e2-408b-494f-a611-1950a3a36616", "Arquebus Corporation"),
 	}
 
 	if !slices.EqualFunc(got, want, isEqualSellers) {
@@ -58,7 +58,7 @@ func testSellerReadAll(t *testing.T, store domain.SellerStore) {
 	}
 }
 
-func isEqualSellers(E1, E2 domain.Seller) bool {
+func isEqualSellers(E1, E2 models.Seller) bool {
 	if E1.ID() != E2.ID() {
 		return false
 	}
@@ -68,7 +68,7 @@ func isEqualSellers(E1, E2 domain.Seller) bool {
 	return true
 }
 
-func checkSeller(t *testing.T, got, want domain.Seller) {
+func checkSeller(t *testing.T, got, want models.Seller) {
 	t.Helper()
 
 	if got.ID() != want.ID() {

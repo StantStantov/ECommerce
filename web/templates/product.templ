@@ -1,27 +1,27 @@
 package templates
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"strconv"
 )
 
-templ Product(product domain.Product) {
+templ Product(product models.Product, userInfo UserViewModel) {
 	@head()
 	<html>
 		<body>
-			@header()
+			@header(userInfo)
 			@productBody(product)
 			@footer()
 		</body>
 	</html>
 }
 
-templ productBody(product domain.Product) {
+templ productBody(product models.Product) {
 	<h2>{ product.Name() }</h2>
-	<a href={ templ.URL("/category/" + strconv.FormatInt(int64(product.Category().ID()), 10)) }>
+	<a href={ templ.URL("/category/" + product.Category().ID()) }>
 		<h2>{ product.Category().Name() }</h2>
 	</a>
-	<a href={ templ.URL("/seller/" + strconv.FormatInt(int64(product.Seller().ID()), 10)) }>
+	<a href={ templ.URL("/seller/" + product.Seller().ID()) }>
 		<h2>{ product.Seller().Name() }</h2>
 	</a>
 	<h2>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</h2>

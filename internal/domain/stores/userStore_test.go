@@ -1,8 +1,8 @@
 package stores_test
 
 import (
-	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/internal/stores"
+	"Stant/ECommerce/internal/domain/models"
+	"Stant/ECommerce/internal/domain/stores"
 	"testing"
 
 	"golang.org/x/crypto/bcrypt"
@@ -26,11 +26,11 @@ func TestUserStore(t *testing.T) {
 	})
 	t.Run("Test Read", func(t *testing.T) {
 		t.Parallel()
-    testUserRead(t, store)
+		testUserRead(t, store)
 	})
 }
 
-func testUserCreate(t *testing.T, store domain.UserStore) {
+func testUserCreate(t *testing.T, store models.UserStore) {
 	t.Helper()
 
 	email := "simple@test.com"
@@ -47,7 +47,7 @@ func testUserCreate(t *testing.T, store domain.UserStore) {
 	}
 }
 
-func testUserIsExists(t *testing.T, store domain.UserStore) {
+func testUserIsExists(t *testing.T, store models.UserStore) {
 	t.Helper()
 
 	email := "readME@test.com"
@@ -60,7 +60,7 @@ func testUserIsExists(t *testing.T, store domain.UserStore) {
 	}
 }
 
-func testUserRead(t *testing.T, store domain.UserStore) {
+func testUserRead(t *testing.T, store models.UserStore) {
 	t.Helper()
 
 	id := "ad43dfbf-1152-478c-a595-e3ebe5ad0085"
@@ -73,12 +73,12 @@ func testUserRead(t *testing.T, store domain.UserStore) {
 	firstName := "read"
 	secondName := "ME"
 	hashedPassword := "$2a$10$sgEy3LehHNpbZ7NjqDhMiejJ8gaQTcykfv1VFJL42aPN8pZJL45EW"
-	want := domain.NewUser(id, email, firstName, secondName, hashedPassword)
+	want := models.NewUser(id, email, firstName, secondName, hashedPassword)
 
 	checkUser(t, got, want)
 }
 
-func checkUser(t *testing.T, got, want domain.User) {
+func checkUser(t *testing.T, got, want models.User) {
 	t.Helper()
 
 	if got.Email() != want.Email() {

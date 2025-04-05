@@ -1,40 +1,34 @@
 package templates
 
-import (
-	"Stant/ECommerce/internal/domain"
-	"strconv"
-)
+import "Stant/ECommerce/internal/domain/models"
 
-templ Index(categories []domain.Category) {
+templ Index(categories []models.Category, userInfo UserViewModel) {
 	@head()
 	<html>
 		<body>
-			@header()
+			@header(userInfo)
 			@indexBody(categories)
 			@footer()
 		</body>
 	</html>
 }
 
-templ indexBody(categories []domain.Category) {
-	<div class="main-body">
-		<div class="grid">
+templ indexBody(categories []models.Category) {
+	<div class="flex flex-col flex-wrap align-center justify-center">
+		<div class="grid grid-gap-primary grid-cols-4">
 			for _, category := range categories {
 				@categoryCard(category)
 			}
 		</div>
-		<a href="/register">
-			<h2>Register</h2>
-		</a>
-		<a href="/login">
-			<h2>Login</h2>
-		</a>
+		@button(buttonRed, "Red")
+		@button(buttonGreen, "Green")
+		@button(buttonBlue, "Blue")
 	</div>
 }
 
-templ categoryCard(category domain.Category) {
-	<div class="grid-card">
-		<a href={ templ.URL("/category/" + strconv.FormatInt(int64(category.ID()), 10)) }>
+templ categoryCard(category models.Category) {
+	<div class="brd-radius-primary brd-width-primary brd-color-primary brd-style-primary index-product-card">
+		<a href={ templ.URL("/category/" + category.ID()) }>
 			<h2>
 				{ category.Name() }
 			</h2>

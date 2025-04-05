@@ -3,9 +3,9 @@ package templates
 type buttonType string
 
 const (
-  buttonRed buttonType = "red"
-  buttonGreen buttonType = "green"
-  buttonBlue buttonType = "blue"
+	buttonRed   buttonType = "hover:text-red hover:brd-color-red active:text-background active:bg-red"
+	buttonGreen buttonType = "hover:text-green hover:brd-color-green active:text-background active:bg-green"
+	buttonBlue  buttonType = "hover:text-blue hover:brd-color-blue active:text-background active:bg-blue"
 )
 
 templ head() {
@@ -14,14 +14,38 @@ templ head() {
 		<meta charset="utf8"/>
 		<title>TheCompany Market</title>
 		<link rel="stylesheet" href="static/css/styles.css"/>
+		<link rel="preconnect" href="https://fonts.googleapis.com"/>
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 }
 
-templ header() {
-	<header class="top-bar">
-		<a href={ templ.URL("/") }>
+type UserViewModel struct {
+	IsLogged bool
+	Name     string
+}
+
+templ header(userInfo UserViewModel) {
+	<header class="flex flex-row">
+		<a href={ "/" }>
 			<h1>TheCompany</h1>
 		</a>
+		<form action="/search/" method="get">
+      <input type="text" name="text" value=""/>
+		</form>
+		if !userInfo.IsLogged {
+			<a href="/register">
+				@button(buttonBlue, "Register")
+			</a>
+			<a href="/login" class="bg-primary">
+				@button(buttonBlue, "Login")
+			</a>
+		} else {
+			<div>{ userInfo.Name }</div>
+		}
 	</header>
 }
 
@@ -32,7 +56,13 @@ templ footer() {
 }
 
 templ button(buttonType buttonType, text string) {
-	<button class={"btn", string(buttonType)}>
-		{ text }
+	<button
+		class={ `flex flex-row align-center gap-x-8 padding-primary w-256 h-48 text-primary brd-radius-primary
+  brd-width-primary brd-color-primary brd-style-primary transition-color` , string(buttonType) }
+	>
+		<div class="w-24 h-24 brd-radius-primary brd-width-primary brd-style-primary">
+			@searchIcon("fill-current")
+		</div>
+		<text class="font-sans font-extralight text-base text-left">{ text }</text>
 	</button>
 }

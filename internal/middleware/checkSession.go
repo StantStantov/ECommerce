@@ -1,12 +1,12 @@
 package middleware
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"context"
 	"net/http"
 )
 
-func CheckSessionMiddleware(sessions domain.SessionStore) func(http.Handler) http.Handler {
+func CheckSessionMiddleware(sessions models.SessionStore) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			sessionCookie, err := r.Cookie("session_token")

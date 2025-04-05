@@ -2,8 +2,8 @@ package main
 
 import (
 	"Stant/ECommerce/internal"
+	"Stant/ECommerce/internal/domain/stores"
 	"Stant/ECommerce/internal/middleware"
-	"Stant/ECommerce/internal/stores"
 	"context"
 	"log"
 	"net/http"

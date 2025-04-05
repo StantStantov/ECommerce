@@ -1,8 +1,8 @@
 package stores_test
 
 import (
-	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/internal/stores"
+	"Stant/ECommerce/internal/domain/models"
+	"Stant/ECommerce/internal/domain/stores"
 	"slices"
 	"testing"
 
@@ -27,7 +27,7 @@ func TestCategoryStore(t *testing.T) {
 	})
 }
 
-func testCategoryRead(t *testing.T, store domain.CategoryStore) {
+func testCategoryRead(t *testing.T, store models.CategoryStore) {
 	t.Helper()
 
 	id := "c735f60a-bebf-4d2f-a016-190a883eb99f"
@@ -36,12 +36,12 @@ func testCategoryRead(t *testing.T, store domain.CategoryStore) {
 		t.Error(err)
 	}
 
-	want := domain.NewCategory(id, "Head")
+	want := models.NewCategory(id, "Head")
 
 	checkCategory(t, got, want)
 }
 
-func testCategoryReadAll(t *testing.T, store domain.CategoryStore) {
+func testCategoryReadAll(t *testing.T, store models.CategoryStore) {
 	t.Helper()
 
 	got, err := store.ReadAll()
@@ -49,11 +49,11 @@ func testCategoryReadAll(t *testing.T, store domain.CategoryStore) {
 		t.Error(err)
 	}
 
-	want := []domain.Category{
-		domain.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
-		domain.NewCategory("7670dd24-fffd-4ede-8fad-17613ec6f2ba", "Core"),
-		domain.NewCategory("70b0d225-f526-4c8b-aafd-cdea3f2977d2", "Arms"),
-		domain.NewCategory("10021a86-d948-4c54-bdf2-00df93a22add", "Legs"),
+	want := []models.Category{
+		models.NewCategory("c735f60a-bebf-4d2f-a016-190a883eb99f", "Head"),
+		models.NewCategory("7670dd24-fffd-4ede-8fad-17613ec6f2ba", "Core"),
+		models.NewCategory("70b0d225-f526-4c8b-aafd-cdea3f2977d2", "Arms"),
+		models.NewCategory("10021a86-d948-4c54-bdf2-00df93a22add", "Legs"),
 	}
 
 	if !slices.EqualFunc(got, want, isEqualCategories) {
@@ -61,7 +61,7 @@ func testCategoryReadAll(t *testing.T, store domain.CategoryStore) {
 	}
 }
 
-func isEqualCategories(E1, E2 domain.Category) bool {
+func isEqualCategories(E1, E2 models.Category) bool {
 	if E1.ID() != E2.ID() {
 		return false
 	}
@@ -71,7 +71,7 @@ func isEqualCategories(E1, E2 domain.Category) bool {
 	return true
 }
 
-func checkCategory(t *testing.T, got, want domain.Category) {
+func checkCategory(t *testing.T, got, want models.Category) {
 	t.Helper()
 
 	if got.ID() != want.ID() {

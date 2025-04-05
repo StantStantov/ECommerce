@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"database/sql"
 	"fmt"
 )
@@ -55,7 +55,7 @@ const getUserByID = `
   ;
 `
 
-func (s UserStore) Read(id string) (domain.User, error) {
+func (s UserStore) Read(id string) (models.User, error) {
 	row := s.db.QueryRow(getUserByID, id)
 	user, err := scanUser(row)
 	if err != nil {
@@ -71,7 +71,7 @@ const getUserByEmail = `
   ;
 `
 
-func (s UserStore) ReadByEmail(email string) (domain.User, error) {
+func (s UserStore) ReadByEmail(email string) (models.User, error) {
 	row := s.db.QueryRow(getUserByEmail, email)
 	user, err := scanUser(row)
 	if err != nil {
@@ -80,7 +80,7 @@ func (s UserStore) ReadByEmail(email string) (domain.User, error) {
 	return user, nil
 }
 
-func scanUser(row sqlRow) (domain.User, error) {
+func scanUser(row sqlRow) (models.User, error) {
 	var (
 		id             string
 		email          string
@@ -89,7 +89,7 @@ func scanUser(row sqlRow) (domain.User, error) {
 		hashedPassword string
 	)
 	if err := row.Scan(&id, &email, &firstName, &secondName, &hashedPassword); err != nil {
-		return domain.User{}, fmt.Errorf("stores.scanUser: [%w]", err)
+		return models.User{}, fmt.Errorf("stores.scanUser: [%w]", err)
 	}
-	return domain.NewUser(id, email, firstName, secondName, hashedPassword), nil
+	return models.NewUser(id, email, firstName, secondName, hashedPassword), nil
 }

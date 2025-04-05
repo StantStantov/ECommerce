@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"database/sql"
 	"fmt"
 )
@@ -22,7 +22,7 @@ const getCategory = `
   ;
 `
 
-func (st CategoryStore) Read(categoryID string) (domain.Category, error) {
+func (st CategoryStore) Read(categoryID string) (models.Category, error) {
 	row := st.db.QueryRow(getCategory, categoryID)
 	category, err := scanCategory(row)
 	if err != nil {
@@ -37,13 +37,13 @@ const getCategories = `
   ;
 `
 
-func (st CategoryStore) ReadAll() ([]domain.Category, error) {
+func (st CategoryStore) ReadAll() ([]models.Category, error) {
 	rows, err := st.db.Query(getCategories)
 	if err != nil {
 		return nil, err
 	}
 
-	categories := []domain.Category{}
+	categories := []models.Category{}
 	defer rows.Close()
 	for rows.Next() {
 		category, err := scanCategory(rows)
@@ -55,13 +55,13 @@ func (st CategoryStore) ReadAll() ([]domain.Category, error) {
 	return categories, nil
 }
 
-func scanCategory(row sqlRow) (domain.Category, error) {
+func scanCategory(row sqlRow) (models.Category, error) {
 	var (
 		id   string
 		name string
 	)
 	if err := row.Scan(&id, &name); err != nil {
-		return domain.Category{}, fmt.Errorf("stores.scanCategory: [%w]", err)
+		return models.Category{}, fmt.Errorf("stores.scanCategory: [%w]", err)
 	}
-	return domain.NewCategory(id, name), nil
+	return models.NewCategory(id, name), nil
 }

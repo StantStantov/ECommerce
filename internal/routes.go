@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"Stant/ECommerce/internal/domain"
+	"Stant/ECommerce/internal/domain/models"
 	"Stant/ECommerce/internal/middleware"
 	"Stant/ECommerce/internal/security"
 	"Stant/ECommerce/internal/views"
@@ -11,11 +11,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func NewMux(categories domain.CategoryStore,
-	sellers domain.SellerStore,
-	products domain.ProductStore,
-	users domain.UserStore,
-	sessions domain.SessionStore,
+func NewMux(categories models.CategoryStore,
+	sellers models.SellerStore,
+	products models.ProductStore,
+	users models.UserStore,
+	sessions models.SessionStore,
 ) *http.ServeMux {
 	styles := http.FileServer(http.Dir("web/static"))
 	serveMux := &http.ServeMux{}
@@ -26,6 +26,7 @@ func NewMux(categories domain.CategoryStore,
 	serveMux.Handle("/category/{id}", checkSession(HandleCategory(categories, products, users)))
 	serveMux.Handle("/seller/{id}", checkSession(HandleSeller(sellers, products, users)))
 	serveMux.Handle("/product/{id}", checkSession(HandleProduct(products, users)))
+	serveMux.Handle("/search/", checkSession(HandleSearch(products, users)))
 
 	serveMux.Handle("GET /register", HandleRegistrationPage())
 	serveMux.Handle("POST /register", HandleRegistration(users))
@@ -35,7 +36,7 @@ func NewMux(categories domain.CategoryStore,
 	return serveMux
 }
 
-func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.Handler {
+func HandleIndex(categories models.CategoryStore, users models.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			categories, err := categories.ReadAll()
@@ -45,7 +46,7 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 				return
 			}
 
-			user := domain.User{}
+			user := models.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err = users.Read(userId)
@@ -62,14 +63,14 @@ func HandleIndex(categories domain.CategoryStore, users domain.UserStore) http.H
 	)
 }
 
-func HandleCategory(categories domain.CategoryStore, products domain.ProductStore, users domain.UserStore) http.Handler {
+func HandleCategory(categories models.CategoryStore, products models.ProductStore, users models.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id := r.PathValue("id")
 
-			categoryChan := make(chan domain.Category)
+			categoryChan := make(chan models.Category)
 			defer close(categoryChan)
-			productsChan := make(chan []domain.Product)
+			productsChan := make(chan []models.Product)
 			defer close(productsChan)
 
 			var eg errgroup.Group
@@ -97,7 +98,7 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 				return
 			}
 
-			user := domain.User{}
+			user := models.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err := users.Read(userId)
@@ -115,14 +116,14 @@ func HandleCategory(categories domain.CategoryStore, products domain.ProductStor
 	)
 }
 
-func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, users domain.UserStore) http.Handler {
+func HandleSeller(sellers models.SellerStore, products models.ProductStore, users models.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id := r.PathValue("id")
 
-			sellerChan := make(chan domain.Seller)
+			sellerChan := make(chan models.Seller)
 			defer close(sellerChan)
-			productsChan := make(chan []domain.Product)
+			productsChan := make(chan []models.Product)
 			defer close(productsChan)
 
 			var eg errgroup.Group
@@ -150,7 +151,7 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 				return
 			}
 
-			user := domain.User{}
+			user := models.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err := users.Read(userId)
@@ -168,7 +169,7 @@ func HandleSeller(sellers domain.SellerStore, products domain.ProductStore, user
 	)
 }
 
-func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Handler {
+func HandleProduct(products models.ProductStore, users models.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			id := r.PathValue("id")
@@ -180,7 +181,7 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 				return
 			}
 
-			user := domain.User{}
+			user := models.User{}
 			userId, ok := middleware.GetUserId(r.Context())
 			if ok {
 				user, err = users.Read(userId)
@@ -197,6 +198,23 @@ func HandleProduct(products domain.ProductStore, users domain.UserStore) http.Ha
 	)
 }
 
+func HandleSearch(products models.ProductStore, users models.UserStore) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if err := r.ParseForm(); err != nil {
+				log.Printf("internal.HandleSearch: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
+			}
+
+			query := r.FormValue("text")
+			log.Printf("%s", query)
+
+			http.Redirect(w, r, "/", http.StatusFound)
+		},
+	)
+}
+
 func HandleRegistrationPage() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -206,7 +224,7 @@ func HandleRegistrationPage() http.Handler {
 	)
 }
 
-func HandleRegistration(users domain.UserStore) http.Handler {
+func HandleRegistration(users models.UserStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if err := r.ParseForm(); err != nil {
@@ -259,7 +277,7 @@ func HandleLoginPage() http.Handler {
 	)
 }
 
-func HandleLogin(users domain.UserStore, sessions domain.SessionStore) http.Handler {
+func HandleLogin(users models.UserStore, sessions models.SessionStore) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			if err := r.ParseForm(); err != nil {

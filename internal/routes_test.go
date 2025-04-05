@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"Stant/ECommerce/internal/domain"
-	"Stant/ECommerce/internal/stores"
+	"Stant/ECommerce/internal/domain/models"
+	"Stant/ECommerce/internal/domain/stores"
 	"Stant/ECommerce/internal/views/templates"
 	"bytes"
 	"context"
@@ -58,7 +58,7 @@ func TestHandlers(t *testing.T) {
 	})
 }
 
-func testIndexHandler(t *testing.T, server *http.ServeMux, categories domain.CategoryStore) {
+func testIndexHandler(t *testing.T, server *http.ServeMux, categories models.CategoryStore) {
 	t.Helper()
 
 	got := httptest.NewRecorder()
@@ -74,8 +74,8 @@ func testIndexHandler(t *testing.T, server *http.ServeMux, categories domain.Cat
 
 func testCategoryHandler(t *testing.T,
 	server *http.ServeMux,
-	categories domain.CategoryStore,
-	products domain.ProductStore,
+	categories models.CategoryStore,
+	products models.ProductStore,
 ) {
 	t.Helper()
 
@@ -93,8 +93,8 @@ func testCategoryHandler(t *testing.T,
 }
 
 func testSellerHandler(t *testing.T, server *http.ServeMux,
-	sellers domain.SellerStore,
-	products domain.ProductStore,
+	sellers models.SellerStore,
+	products models.ProductStore,
 ) {
 	t.Helper()
 
@@ -111,7 +111,7 @@ func testSellerHandler(t *testing.T, server *http.ServeMux,
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
-func testProductHandler(t *testing.T, server *http.ServeMux, products domain.ProductStore) {
+func testProductHandler(t *testing.T, server *http.ServeMux, products models.ProductStore) {
 	t.Helper()
 
 	id := "02cab72f-e225-4c3d-b725-faaa5d66ca74"
@@ -126,7 +126,7 @@ func testProductHandler(t *testing.T, server *http.ServeMux, products domain.Pro
 	checkResponseBody(t, *got.Body, *want.Body)
 }
 
-func testRegisterHandler(t *testing.T, server *http.ServeMux, users domain.UserStore) {
+func testRegisterHandler(t *testing.T, server *http.ServeMux, users models.UserStore) {
 	t.Helper()
 
 	email := "user@test.com"
