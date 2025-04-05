@@ -26,7 +26,7 @@ func NewMux(categories models.CategoryStore,
 	serveMux.Handle("/category/{id}", checkSession(HandleCategory(categories, products, users)))
 	serveMux.Handle("/seller/{id}", checkSession(HandleSeller(sellers, products, users)))
 	serveMux.Handle("/product/{id}", checkSession(HandleProduct(products, users)))
-	serveMux.Handle("/search/", checkSession(HandleSearch(products, users)))
+	serveMux.Handle("GET /search/", checkSession(HandleSearch(products, users)))
 
 	serveMux.Handle("GET /register", HandleRegistrationPage())
 	serveMux.Handle("POST /register", HandleRegistration(users))
@@ -208,9 +208,27 @@ func HandleSearch(products models.ProductStore, users models.UserStore) http.Han
 			}
 
 			query := r.FormValue("text")
-			log.Printf("%s", query)
 
-			http.Redirect(w, r, "/", http.StatusFound)
+			products, err := products.ReadAllByQuery(query)
+			if err != nil {
+				log.Printf("internal.HandleProduct: [%v]", err)
+				http.Error(w, "Internal Error", http.StatusInternalServerError)
+				return
+			}
+
+			user := models.User{}
+			userId, ok := middleware.GetUserId(r.Context())
+			if ok {
+				user, err = users.Read(userId)
+				if err != nil {
+					log.Printf("internal.HandleProduct: [%v]", err)
+					http.Error(w, "Internal Error", http.StatusInternalServerError)
+					return
+				}
+			}
+
+			w.WriteHeader(http.StatusOK)
+			views.RenderProductsPage(query, products, user, w, r.Context())
 		},
 	)
 }

@@ -9,6 +9,7 @@ type ProductStore interface {
 	Read(id string) (Product, error)
 	ReadAll() ([]Product, error)
 	ReadAllByFilter(categoryID string, sellerID string) ([]Product, error)
+	ReadAllByQuery(query string) ([]Product, error)
 }
 
 type CategoryStore interface {

@@ -1,0 +1,37 @@
+package templates
+
+import (
+	"Stant/ECommerce/internal/domain/models"
+	"strconv"
+)
+
+templ Products(query string, products []models.Product, userInfo UserViewModel) {
+	@head()
+	<html>
+		<body>
+			@header(userInfo)
+			@productsBody(query, products)
+			@footer()
+		</body>
+	</html>
+}
+
+templ productsBody(name string, products []models.Product) {
+	<h2>{ name }</h2>
+	for _, product := range products {
+		@productCard(product)
+	}
+}
+
+templ productsCard(product models.Product) {
+	<a href={ templ.URL("/product/" + product.ID()) }>
+		<div>{ product.Name() }</div>
+		<a href={ templ.URL("/category/" + product.Category().ID()) }>
+			<div>{ product.Category().Name() }</div>
+		</a>
+		<a href={ templ.URL("/seller/" + product.Seller().ID()) }>
+			<div>{ product.Seller().Name() }</div>
+		</a>
+		<div>{ strconv.FormatFloat(product.Price(), 'f', -1, 32) }</div>
+	</a>
+}

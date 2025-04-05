@@ -3,6 +3,7 @@ package internal
 import (
 	"Stant/ECommerce/internal/domain/models"
 	"Stant/ECommerce/internal/domain/stores"
+	"Stant/ECommerce/internal/views"
 	"Stant/ECommerce/internal/views/templates"
 	"bytes"
 	"context"
@@ -47,6 +48,10 @@ func TestHandlers(t *testing.T) {
 	t.Run("Test Product", func(t *testing.T) {
 		t.Parallel()
 		testProductHandler(t, server, productStore)
+	})
+	t.Run("Test Search", func(t *testing.T) {
+		t.Parallel()
+		testSearchHandler(t, server, productStore)
 	})
 	t.Run("Test Registration", func(t *testing.T) {
 		t.Parallel()
@@ -121,6 +126,21 @@ func testProductHandler(t *testing.T, server *http.ServeMux, products models.Pro
 	want := httptest.NewRecorder()
 	wantProduct, _ := products.Read(id)
 	templates.Product(wantProduct, templates.UserViewModel{}).Render(context.Background(), want)
+
+	checkResponseStatus(t, got.Code, http.StatusOK)
+	checkResponseBody(t, *got.Body, *want.Body)
+}
+
+func testSearchHandler(t *testing.T, server *http.ServeMux, products models.ProductStore) {
+	t.Helper()
+
+	query := "VP"
+	got := httptest.NewRecorder()
+	server.ServeHTTP(got, newGetRequest(t, "/search/?text="+query, nil))
+
+	want := httptest.NewRecorder()
+	wantProducts, _ := products.ReadAllByQuery(query)
+	views.RenderProductsPage(query, wantProducts, models.User{}, want, context.Background())
 
 	checkResponseStatus(t, got.Code, http.StatusOK)
 	checkResponseBody(t, *got.Body, *want.Body)

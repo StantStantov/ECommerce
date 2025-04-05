@@ -89,6 +89,33 @@ func (st ProductStore) ReadAllByFilter(categoryID, sellerID string) ([]models.Pr
 	return products, nil
 }
 
+const getProductsByQuery = `
+  SELECT p.id, p.name, s.id, s.name, c.id, c.name, p.price
+  FROM market.products p
+  JOIN market.categories c ON p.category_id = c.id
+  JOIN market.sellers s ON p.seller_id = s.id
+  WHERE p.name_tsv @@ to_tsquery('simple', $1)
+  ;
+`
+
+func (st ProductStore) ReadAllByQuery(query string) ([]models.Product, error) {
+	rows, err := st.db.Query(getProductsByQuery, query)
+	if err != nil {
+		return nil, err
+	}
+
+	products := []models.Product{}
+	defer rows.Close()
+	for rows.Next() {
+		product, err := scanProduct(rows)
+		if err != nil {
+			return nil, fmt.Errorf("stores.ProductStore.ReadAllByQuery: [%w]", err)
+		}
+		products = append(products, product)
+	}
+	return products, nil
+}
+
 func scanProduct(row sqlRow) (models.Product, error) {
 	var (
 		productID    string
