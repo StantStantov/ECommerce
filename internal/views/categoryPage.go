@@ -2,7 +2,7 @@ package views
 
 import (
 	"Stant/ECommerce/internal/domain"
-	templates "Stant/ECommerce/web"
+	"Stant/ECommerce/internal/views/templates"
 	"context"
 	"fmt"
 	"net/http"

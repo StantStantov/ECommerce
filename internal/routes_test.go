@@ -3,7 +3,7 @@ package internal
 import (
 	"Stant/ECommerce/internal/domain"
 	"Stant/ECommerce/internal/stores"
-	templates "Stant/ECommerce/web"
+	"Stant/ECommerce/internal/views/templates"
 	"bytes"
 	"context"
 	"database/sql"

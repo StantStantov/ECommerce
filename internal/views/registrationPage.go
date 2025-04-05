@@ -1,7 +1,7 @@
 package views
 
 import (
-	templates "Stant/ECommerce/web"
+	"Stant/ECommerce/internal/views/templates"
 	"context"
 	"net/http"
 )
