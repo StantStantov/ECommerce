@@ -37,7 +37,7 @@ func Button(buttonType ButtonType, icon IconType, text string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		var templ_7745c5c3_Var2 = []any{`flex flex-row align-center gap-x-8 padding-primary w-256 h-48 text-primary brd-radius-primary
+		var templ_7745c5c3_Var2 = []any{`flex align-items-center gap-x-8 w-256 h-48 padding-primary text-primary brd-radius-primary
   brd-width-primary brd-color-primary brd-style-primary transition-color`, string(buttonType)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
@@ -56,7 +56,7 @@ func Button(buttonType ButtonType, icon IconType, text string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"w-24 h-24 brd-radius-primary brd-width-primary brd-style-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"flex align-items-center grow-0 brd-radius-primary brd-width-primary brd-style-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

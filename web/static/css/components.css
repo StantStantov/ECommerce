@@ -18,6 +18,9 @@
   flex-wrap: wrap;
 }
 
+.grow-0 {
+  flex-grow: 0;
+}
 .grow-1 {
   flex-grow: 1;
 }
@@ -68,6 +71,9 @@
 .w-24 {
   width: 24px;
 }
+.w-48 {
+  width: 48px;
+}
 .w-256 {
   width: 256px;
 }
@@ -85,6 +91,10 @@
 
 .font-extralight {
   font-weight: 200;
+}
+
+.text-line-none {
+  text-decoration-line: none;
 }
 
 .text-primary {
@@ -201,6 +211,6 @@
   background: var(--blue);
 }
 
-.focus\:out-color-none:focus {
+.focus\:out-none:focus {
   outline: none;
 }

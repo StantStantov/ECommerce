@@ -7,7 +7,7 @@ templ head() {
 	<head>
 		<meta charset="utf8"/>
 		<title>TheCompany Market</title>
-		<link rel="stylesheet" href="/static/css/styles.css"/>
+		<link rel="stylesheet" href="/static/css/style.css"/>
 		<link rel="preconnect" href="https://fonts.googleapis.com"/>
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 		<link
@@ -23,24 +23,48 @@ type UserViewModel struct {
 }
 
 templ header(userInfo UserViewModel) {
-	<header class="flex flex-row">
-		<a href={ "/" }>
-			<h1>TheCompany</h1>
-		</a>
-		<form action="/search/" method="get">
-			<input type="text" name="text" value=""/>
-		</form>
-		if !userInfo.IsLogged {
-			<a href="/register">
-				@components.Button(components.ButtonBlue, components.IconSearch("fill-current"), "Register")
-			</a>
-			<a href="/login" class="bg-primary">
-				@components.Button(components.ButtonBlue, components.IconSearch("fill-current"), "Login")
-			</a>
-		} else {
-			<div>{ userInfo.Name }</div>
-		}
+	<header class="flex justify-center align-center gap-x-8 padding-primary bg-primary">
+		<div class="grow-1">
+			<div class="flex justify-center align-items-center h-48">
+				<a href={ "/" } class="text-line-none">
+					<text class="font-sans font-extralight text-primary text-base text-left">The Company</text>
+				</a>
+			</div>
+		</div>
+		<div class="grow-2">
+			@searchBar()
+		</div>
+		<div class="grow-1">
+			<div class="flex justify-center align-center">
+				if !userInfo.IsLogged {
+					<a href="/login" class="text-line-none">
+						@components.Button(components.ButtonBlue, components.IconSearch("fill-current"), "Sign in")
+					</a>
+				} else {
+					<div>{ userInfo.Name }</div>
+				}
+			</div>
+		</div>
 	</header>
+}
+
+templ searchBar() {
+	<form class="flex justify-stretch h-48" action="/search/" method="get">
+		<button
+			class="w-48 padding-primary text-primary text-sm brd-l-radius-primary brd-width-primary brd-color-primary brd-style-primary"
+			type="submit"
+		>
+			<div class="flex justify-center align-center">
+				@components.IconSearch("flex justify-center fill-current")
+			</div>
+		</button>
+		<input
+			class="grow-1 padding-primary font-sans font-extralight text-base text-left brd-r-radius-primary brd-width-primary brd-l-width-0 brd-color-primary brd-style-primary focus:out-none"
+			type="text"
+			name="text"
+			placeholder="Search for ..."
+		/>
+	</form>
 }
 
 templ footer() {

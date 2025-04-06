@@ -16,7 +16,7 @@
   --text-base-line-height: calc(1.5 / 1);
 
   --border-radius-primary: 3px;
-  --border-width-primary: 0.5px;
+  --border-width-primary: 1px;
   --border-color-primary: var(--foreground);
   --border-style-primary: solid;
 }
