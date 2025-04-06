@@ -1,0 +1,22 @@
+:root {
+  --foreground: #353131;
+  --background: #f3f1f1;
+  --red: #b92d2d;
+  --green: #2db92d;
+  --blue: #2d67b9;
+
+  --gap-primary: 16px;
+  --padding-primary: 8px;
+  --margin-primary: 8px;
+
+  --font-sans: "Chakra Petch";
+  --text-sm: 14px;
+  --text-sm-line-height: calc(1.25 / 0.875);
+  --text-base: 16px;
+  --text-base-line-height: calc(1.5 / 1);
+
+  --border-radius-primary: 3px;
+  --border-width-primary: 0.5px;
+  --border-color-primary: var(--foreground);
+  --border-style-primary: solid;
+}

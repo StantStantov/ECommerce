@@ -1,0 +1,12 @@
+@layer theme, base, components, style;
+
+@import "./theme.css" layer(theme);
+@import "./normalise.css" layer(base);
+@import "./components.css" layer(components);
+
+@layer style {
+  .index-product-card {
+    width: 100%;
+    height: 100%;
+  }
+}
